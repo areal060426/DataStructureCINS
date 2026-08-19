@@ -5,7 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="41490ef6-50ec-4286-9c75-18dbc6fc3fd3" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/main/java/Activity1/Magpulong.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/Activity1/Magpulong.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Activity1/Magpulong.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -37,7 +38,7 @@
     "ModuleVcsDetector.initialDetectionPerformed": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "main",
+    "git-widget-placeholder": "Magpulong",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "C:/Users/japhe/Documents/GitHub/DataStructureCINS"
   }
