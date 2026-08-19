@@ -1,6 +1,6 @@
 package Activity1;
 
-public class deleon {
+public class DeLeon {
 
 	public static void main(String[] args) {
 		System.out.println("Full Name: Clare Maragret S. De Leon");
