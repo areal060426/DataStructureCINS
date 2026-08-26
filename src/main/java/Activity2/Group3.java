@@ -11,7 +11,7 @@ public class Group3 {
         students.add("Ben");
         students.add("Carlo");
 
-        students.remove(3);
+        students.remove(2);
 
         System.out.println(students);
     }
