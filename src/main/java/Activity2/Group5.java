@@ -12,7 +12,7 @@ public class Group5 {
         customers.add("Customer B");
         customers.add("Customer C");
 
-        customers.remove("Customer C");
+        customers.remove();
 
         System.out.println(customers);
     }
