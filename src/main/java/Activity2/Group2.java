@@ -8,6 +8,6 @@ public class Group2 {
             {40, 50, 60}
         };
 
-        System.out.println(numbers[2][3]);
+        System.out.println(numbers[1][2]);
     }
 }
