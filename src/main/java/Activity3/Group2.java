@@ -1,7 +1,8 @@
 package Activity3;
 
 import java.util.Scanner;
-
+//Group 2: Jasper James Docado, Japhette Louis Magpulong, Johnpaul Maglana, Shiaorene Lomyier Capuno
+//Willheime MarieJune Guillermo, Angelito Baltar, Erich Daler Custodio, Angel John Natividad
 public class Group2 {
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
