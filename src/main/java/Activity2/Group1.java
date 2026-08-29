@@ -7,6 +7,7 @@ public class Group1 {
 
         for (int i = 0; i < numbers.length; i++) {
             System.out.println(numbers[i]);
+            // G1 Members: Arnonobal, Caguioa, Constantino, Maon, Mercado, Nacino, Paa, Reyes
         }
     }
 }
