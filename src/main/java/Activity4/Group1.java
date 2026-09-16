@@ -53,26 +53,35 @@ public class Group1 {
 			}
 			double average = total / n;
 			
-			for (int i = 0; i < n - 1; i++ ) {
-				for (int j = 0; j < n - 1 - i ; j++) {
-					
-					if(grades[j] < grades[j + 1]) {
-						double tempGrade = grades[j];
-						grades[j] = grades[j + 1];
-						grades[j + 1] = tempGrade;
-						
-						String tempName = names[j];
-						names[j] = names[j + 1];
-						names[j + 1] = tempName;
-					}
-				}
+			System.out.println("\n   STUDENT AVERAGES   ");
+			
+			for (int i = 0; i < n; i++) {
+				double studentAve = grades[i] / 1;
+				System.out.println(names[i] + "-" + studentAve);
 			}
+			
+
 			System.out.println("\n   STUDENT RANKING   ");
 			
 			for (int i = 0; i < n; i++) {
 				System.out.println((i + 1) + ". " + names[i] + "-" + grades[i]);
 			}
 			System.out.println("\nHighest Grade: " + grades[0]);
-			System.out.println("Lowest Grade: " + grades[n - 1]);			
+			System.out.println("Lowest Grade: " + grades[n - 1]);
+			
+			System.out.println("\n   STUDENT ABOVE AVERAGE   ");
+
+			boolean above = false;
+
+			for (int i = 0; i < n; i++) {
+				if (grades[i] > average) {
+					System.out.println(names[i] + "-" + grades[i]);
+					above = true;
+				}
+			}
+			 if (!above) {
+				 System.out.println("No above average student found.");
+			 }
+			 
 	}
 }
