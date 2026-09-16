@@ -34,6 +34,10 @@ Determine lowest grade per subject.
 Display students who failed any subject.
 
 */
+
+
+//Group 4: Vhenz Santuele, Roel Ernest Fernandez, Justine Lagrada, Daryl Paña 
+//Lira Linatoc, Clare Margaret De Leon, Glayza Maxinne Dimailig, Angelica Estores
 import java.util.Scanner;
 public class Group4 {
         public static void main(String[] args){
@@ -136,20 +140,20 @@ public class Group4 {
             
          System.out.println("\n================ GRADE REPORT ================");
 
-         System.out.print("Names\t");
+         System.out.print("Names\t\t");
 
          for (int subjects = 0; subjects < subjectNames.length; subjects++) {
-             System.out.print(subjectNames[subjects] + "\t");
+             System.out.print(subjectNames[subjects] + "\t\t");
          }
         
          System.out.println("Average");
          for (int students = 0; students < arrOfGrades.length; students++) {
         	
         	
-        	System.out.print(studentNames[students] + "\t");
+        	System.out.print(studentNames[students] + "\t\t");
    	
         	for (int subjects = 0; subjects < arrOfGrades[students].length; subjects++) {
-                System.out.print(arrOfGrades[students][subjects] + " \t");             
+                System.out.print(arrOfGrades[students][subjects] + " \t\t");             
             }
         	System.out.print((studentAve[students]/numOfSubjects));
             System.out.println();
