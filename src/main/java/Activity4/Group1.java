@@ -22,8 +22,10 @@ import java.util.*;
 
 public class Group1 {
 	public static void main(String[]args) {
-		Scanner sc = new Scanner(System.in);
 		
+		System.out.println("Prepared by: Arnonobal, Caguioa, Constantino, Maon, Mercado, Nacino, Paa, Reyes");
+			
+		Scanner sc = new Scanner(System.in);
 		System.out.println("Enter Number of Students: ");
 		int n = sc.nextInt();
 		sc.nextLine();
@@ -38,7 +40,6 @@ public class Group1 {
 			System.out.println("Enter Grade: ");
 			grades[i] = sc.nextDouble();
 			sc.nextLine();		
-			
 		}
 			System.out.println("\n   ORIGINAL RECORDS   ");
 
