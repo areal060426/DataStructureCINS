@@ -34,7 +34,7 @@ public class Group1 {
 		double[] grades = new double[n];
 		
 		for(int i = 0; i < n; i++) {
-			System.out.println("Enter Name of Student: " + (i + 1) + ": ");
+			System.out.println("Enter Name of Student " + (i + 1) + ": ");
 			names[i] = sc.nextLine();
 			
 			System.out.println("Enter Grade: ");
@@ -73,22 +73,6 @@ public class Group1 {
 				System.out.println((i + 1) + ". " + names[i] + "-" + grades[i]);
 			}
 			System.out.println("\nHighest Grade: " + grades[0]);
-			System.out.println("Lowest Grade: " + grades[n - 1]);
-			
-			System.out.println("Average Grade: " + average);
-			System.out.println("\n   STUDENT ABOVE AVERAGE   ");
-			
-			boolean above = false;
-			
-			for (int i = 0; i < n; i++) {
-				if (grades[i] > average) {
-					System.out.println(names[i] + "-" + grades[i]);
-					above = true;
-				}
-			}
-			 if (!above) {
-				 System.out.println("No above average student found.");
-			 }
-			
+			System.out.println("Lowest Grade: " + grades[n - 1]);			
 	}
 }
