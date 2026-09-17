@@ -1,5 +1,6 @@
 package Activity2;
-//The queue should remove the first person who entered.
+//The queue should remove the first person who entered. 
+// Group members: Apellanes, Balla, Banalo, Pastor, Rasonable, Rosalejos, Saliente, Santos
 import java.util.LinkedList;
 import java.util.Queue;
 

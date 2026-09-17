@@ -1,5 +1,7 @@
 package Activity2;
 //The program should display the value 60.
+//Group 2: Jasper James Docado, Japhette Louis Magpulong, Johnpaul Maglana, Shiaorene Lomyier Capuno
+//Willheime MarieJune Guillermo, Angelito Baltar, Erich Daler Custodio, Angel John Natividad
 public class Group2 {
     public static void main(String[] args) {
 
