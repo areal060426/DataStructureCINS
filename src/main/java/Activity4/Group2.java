@@ -24,31 +24,35 @@ The program must reject an array size lower than 10 or higher than 20.
 //Willheime MarieJune Guillermo, Angelito Baltar, Erich Daler Custodio, Angel John Natividad
 public class Group2 {
     public static void main(String[] args) {
+
         Scanner sc = new Scanner(System.in);
-        Scanner st = new Scanner(System.in);
         int count = 0;
         int numbers[] = new int[20];
         String input = "";
+
         System.out.println("Enter 10 - 20 numbers: ");
 
-        while (count <= 20) {
+        while (count < 20) {
             System.out.print("Enter " + (count + 1) + " number: ");
-            numbers[count] = sc.nextInt();
-            System.out.print("Are you finished: ");
-            input = st.nextLine();
+            if (sc.hasNextInt()) {
+                numbers[count] = sc.nextInt();
+                System.out.print("Are you finished(y/n): ");
+                input = sc.next();
 
-            if (input.equalsIgnoreCase("yes")) {
-                if (count < 9) {
-                    System.out.println("Enter at least 10 numbers");
-                } else {
-                    break;
+                if (input.equalsIgnoreCase("y")) {
+                    if (count < 9) {
+                        System.out.println("Enter at least 10 numbers");
+                    } else {
+                        break;
+                    }
                 }
+                count++;
+            } else {
+                System.out.println("Invalid Integer");
+                sc.next();
             }
-            count++;
         }
 
-
-        //Declarations
         int size = count + 1;
 
         //Assign old array to new array
@@ -57,8 +61,9 @@ public class Group2 {
             newNumbers[i] = numbers[i];
         }
 
+        System.out.println("The original numbers: ");
         for (int number : newNumbers) {
-            System.out.print("The numbers inputted by user" + number + ", ");
+            System.out.print(number + ", ");
         }
         System.out.println(" ");
 
@@ -72,8 +77,9 @@ public class Group2 {
                 }
             }
         }
+        System.out.println("Bubble Sorted Array: ");
         for (int number : newNumbers) {
-            System.out.print("Bubble Sorted Array: " + number + ", ");
+            System.out.print(number + ", ");
         }
         System.out.println(" ");
 
@@ -101,8 +107,9 @@ public class Group2 {
             newNumbers[max] = temp;
         }
 
+        System.out.println("Selection Sorted Array: ");
         for (int number : newNumbers) {
-            System.out.print("Selection Sorted Array: " + number + ", ");
+            System.out.print(number + ", ");
         }
         System.out.println(" ");
 
@@ -117,21 +124,32 @@ public class Group2 {
                 oddCount++;
             }
         }
-        System.out.println("Even numbers in array" + evenCount);
-        System.out.println("Odd numbers in array" + oddCount);
+        System.out.println("Even numbers in array: " + evenCount);
+        System.out.println("Odd numbers in array: " + oddCount);
 
+        for (int i = 0; i < newNumbers.length - 1; i++) {
+            for (int j = 0; j < newNumbers.length - i - 1; j++) {
+                if (newNumbers[j] > newNumbers[j + 1]) {
+                    int temp = newNumbers[j];
+                    newNumbers[j] = newNumbers[j + 1];
+                    newNumbers[j + 1] = temp;
+                }
+            }
+        }
         //Counting duplicates and displaying unique numbers
         int duplicateCount = 0;
+        System.out.println("Unique Numbers in Array: ");
         for (int i = 0; i< newNumbers.length; i++) {
             if (i == 0 || newNumbers[i] != newNumbers[i-1]) {
-                System.out.println(newNumbers[i] + ", ");
+                System.out.print(newNumbers[i] + ", ");
             }
                else {
                     duplicateCount++;
             }
         }
 
-        System.out.println("Number of duplicates in array" + duplicateCount);
+        System.out.println(" ");
+        System.out.println("Number of duplicates in array: " + duplicateCount);
 
 
 
@@ -139,7 +157,7 @@ public class Group2 {
         //Search
         Scanner search = new Scanner(System.in);
         boolean isFound = false;
-        System.out.println("Enter a number to search: ");
+        System.out.print("Enter a number to search: ");
         int target = search.nextInt();
 
         for (int i = 0; i < newNumbers.length; i++) {
