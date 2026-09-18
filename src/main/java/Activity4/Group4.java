@@ -91,10 +91,9 @@ public class Group4 {
             studentAve = new double[numOfStudents];
             
             sc.nextLine();
-            for (int i = 0; i< numOfSubjects; i++) {
-            
-            	System.out.print("Enter name for subject " + (i + 1) + ": " );
-            	subjectNames[i]= sc.nextLine();
+            for (int subjects = 0; subjects< numOfSubjects; subjects++) {         
+            	System.out.print("Enter name for subject " + (subjects + 1) + ": " );
+            	subjectNames[subjects]= sc.nextLine();
             }
             
             System.out.println("-----------------");
@@ -138,7 +137,7 @@ public class Group4 {
             
             
             
-         System.out.println("\n================ GRADE REPORT ================");
+         System.out.println("\nGRADE REPORT");
 
          System.out.print("Names\t\t");
          for (int subjects = 0; subjects < subjectNames.length; subjects++) {
@@ -147,7 +146,7 @@ public class Group4 {
         
          
          System.out.println("Average");
-         System.out.println("------------------------------------------------");
+         System.out.println("------------------------------------------------------------------------------------------------");
          for (int students = 0; students < arrOfGrades.length; students++) {      	
         	System.out.print(studentNames[students] + "\t\t");
         	
@@ -179,14 +178,15 @@ public class Group4 {
 		 lowestPerSubject[subjects] = min;	 
 		 }
            
-         System.out.println("------------------------------------------------");
+         System.out.println("------------------------------------------------------------------------------------------------");
+        
          System.out.println("\nSUBJECT AVERAGE");
          for (int subjects = 0; subjects < numOfSubjects; subjects++) {
 	         System.out.printf("Subject %s | Average: %.2f\n",
 	         subjectNames[subjects], subjectAverage[subjects]);
          }
   
-     
+         System.out.println();
 	     System.out.println("\nSUBJECT'S HIGHEST AND LOWEST");
 	     for (int subjects = 0; subjects < numOfSubjects; subjects++) {
 	    	 System.out.printf(subjectNames[subjects] + "'s Highest: %.2f | Lowest: %.2f\n",
@@ -195,7 +195,8 @@ public class Group4 {
      
 	     
 	     //SORTED BY AVERAGE
-	     System.out.println("\nSORTED BY AVERAGE");
+	     System.out.println();
+	     System.out.println("\nSORTED STUDENTS BY AVERAGE");
 	     for (int i = 0; i < numOfStudents - 1; i++) { 
 	    	 for (int j = 0; j < numOfStudents - i - 1; j++) { 
 	    		 if (studentAve[j] < studentAve[j + 1]) { 
@@ -214,8 +215,6 @@ public class Group4 {
 	    		 } 
 	    	 }
 	
-	     
-	  
          System.out.print("Names\t\t");
          for (int subjects = 0; subjects < subjectNames.length; subjects++) {
              System.out.print(subjectNames[subjects] + "\t\t");
@@ -223,6 +222,7 @@ public class Group4 {
         
          
          System.out.println("Average");
+         System.out.println("------------------------------------------------------------------------------------------------");
          for (int students = 0; students < arrOfGrades.length; students++) {      	
         	System.out.print(studentNames[students] + "\t\t");
         	
@@ -233,11 +233,14 @@ public class Group4 {
         	System.out.printf("%.2f",(studentAve[students]/numOfSubjects));
             System.out.println();
          }
-	     
+         
+         System.out.println("------------------------------------------------------------------------------------------------");
          System.out.println();
          System.out.println("\nTOP 3 STUDENTS");
-	     for (int students = 0; students < 3; students++) {
-	    	 System.out.printf("Top %d | %s | Average: %.2f\n", students + 1, studentNames[students], (studentAve[students]/numOfSubjects)); 
+	     for (int students = 0; students < numOfStudents; students++) {
+	    	 if (students < 3) {
+	    	 System.out.printf("Top %d | %s | Average: %.2f\n", students + 1, studentNames[students], (studentAve[students]/numOfSubjects));
+	    	 }
 	     }
      
 	     
