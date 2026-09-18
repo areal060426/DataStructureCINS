@@ -38,7 +38,6 @@ Display students who failed any subject.
 
 //Group 4: Vhenz Santuele, Roel Ernest Fernandez, Justine Lagrada, Daryl Paña 
 //Lira Linatoc, Clare Margaret De Leon, Glayza Maxinne Dimailig, Angelica Estores
-
 import java.util.Scanner;
 public class Group4 {
         public static void main(String[] args){
