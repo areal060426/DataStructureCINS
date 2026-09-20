@@ -40,163 +40,141 @@ Display students who failed any subject.
 //Lira Linatoc, Clare Margaret De Leon, Glayza Maxinne Dimailig, Angelica Estores
 import java.util.Scanner;
 public class Group4 {
-        public static void main(String[] args){
-            Scanner sc = new Scanner(System.in);
-            String[] studentNames;
-            String[] subjectNames;
-            double[][] arrOfGrades;
-            double[] studentAve;
-            int numOfSubjects;
-            int numOfStudents;
+	
+	static Scanner sc = new Scanner(System.in);	
+	static int numOfSubjects;
+    static int numOfStudents;    
+    static double[][] grades;    
+    static String[] studentNames;
+    static String[] subjectNames;
+    static double[] studentAve;
+    	
+    public static void main(String[] args){
+    	
+    	enterNumOfStudentsAndSubjects();  
+    	inputSubjectNames();
+    	inputNamesAndGrades();	
+    	displayStudentGradesAndAverage();
+    	displaySubjectDetails();   	
+    	sortStudentsByAverage();
+    	displayFailedSubjects();
+    	
+    	sc.close();
+   }
+              
+   private static void enterNumOfStudentsAndSubjects() {
+	   while (true) {
+		   try {
+			   System.out.print("Enter number of students: "  );
+			   numOfStudents = sc.nextInt();
 
-            while (true) {
-                try {
-            System.out.print("Number of students: "  );
-            numOfStudents = sc.nextInt();
-            if (numOfStudents <= 0) {
-                System.out.println("Please enter a number greater than 0.");
-                continue;
-            }
+			   if (numOfStudents <= 0) {
+				   System.out.println("Please enter a number greater than 0.");
+				   continue;
+			   }
+			   break;
 
-            break;
-
-		        } catch (Exception e) {
-		            System.out.println("Invalid input. Please enter a whole number.");
-		            sc.nextLine();
-		        }
-		    }
-            
- 
-            while (true) {
-                try {
-                    System.out.print("Number of subjects: ");
-                    numOfSubjects = sc.nextInt();
-
-                    if (numOfSubjects <= 0) {
-                        System.out.println("Please enter a number greater than 0.");
-                        continue;
-                    }
-
-                    break;
-
-                } catch (Exception e) {
-                    System.out.println("Invalid input. Please enter a whole number.");
-                    sc.nextLine();
-                }
-            }
-  
-            studentNames = new String[numOfStudents];
-            subjectNames = new String[numOfSubjects];
-            arrOfGrades = new double[numOfStudents][numOfSubjects];
-            studentAve = new double[numOfStudents];
-            
-            sc.nextLine();
-            for (int subjects = 0; subjects< numOfSubjects; subjects++) {         
-            	System.out.print("Enter name for subject " + (subjects + 1) + ": " );
-            	subjectNames[subjects]= sc.nextLine();
-            }
-            
-            System.out.println("-----------------");
-            
-            for (int students =0; students < numOfStudents; students++) {
-            	System.out.print("Enter Student " + (students + 1) + " Name: ");
-            	studentNames[students] = sc.nextLine();
-            	System.out.println(studentNames[students] + "'s Grades ");           	
-            	for (int subjects = 0; subjects < numOfSubjects; subjects++) {
-            		
-            		
-            		 while (true) {
-                         try {
- 	
-            		System.out.print("Enter grade for " + subjectNames[subjects] + ": ");
-            		arrOfGrades[students][subjects] = sc.nextDouble();		
-            		
-            		  if (arrOfGrades[students][subjects] < 0 || arrOfGrades[students][subjects] > 100) {
-                          System.out.println(
-                                  "Invalid grade. Please enter a grade from 0 to 100.");
-                      } else {
-                          arrOfGrades[students][subjects] = arrOfGrades[students][subjects];
-                          studentAve[students] += arrOfGrades[students][subjects];
-                          break;
-                      }
-
-                  } catch (Exception e) {
-                      System.out.println(
-                              "Invalid input. Please enter a numeric grade.");
-                      sc.nextLine();
-                  }
-              }
-            	
-            	
-            	}
-            	
-            	sc.nextLine();  
-            	System.out.println();
-            }
-            
-            
-            
-            
-         System.out.println("\nGRADE REPORT");
-
-         System.out.print("Names\t\t");
-         for (int subjects = 0; subjects < subjectNames.length; subjects++) {
-             System.out.print(subjectNames[subjects] + "\t\t");
-         }
-        
-         
-         System.out.println("Average");
-         System.out.println("------------------------------------------------------------------------------------------------");
-         for (int students = 0; students < arrOfGrades.length; students++) {      	
-        	System.out.print(studentNames[students] + "\t\t");
-        	
-        	for (int subjects = 0; subjects < arrOfGrades[students].length; subjects++) {
-                System.out.print(arrOfGrades[students][subjects] + " \t\t");             
-            }
-        	
-        	System.out.printf("%.2f",(studentAve[students]/numOfSubjects));
-            System.out.println();
-         }
-                     
-         double [] subjectAverage = new double[numOfSubjects];
-         double [] highestPerSubject = new double[numOfSubjects];
-         double [] lowestPerSubject = new double[numOfSubjects];
-            
-         for (int subjects = 0; subjects < numOfSubjects; subjects++) {
-        	double sum = 0;
-        	double max = arrOfGrades[0][subjects];
-        	double min = arrOfGrades[0][subjects];
-        	
-			for (int students = 0; students < numOfStudents; students++) {
-				sum += arrOfGrades [students][subjects];
-				if (arrOfGrades[students][subjects] > max) max = arrOfGrades[students][subjects];
-				if (arrOfGrades[students][subjects] < min) min = arrOfGrades[students][subjects];
-			}
-
-		 subjectAverage[subjects] = sum / numOfStudents;
-		 highestPerSubject[subjects] = max;
-		 lowestPerSubject[subjects] = min;	 
-		 }
+	        } catch (Exception e) {
+	        	System.out.println("Invalid input. Please enter a whole number.");
+	        	sc.nextLine();
+	        }
+	    }
+	   
+	   while (true) {
+		   try {
+			   System.out.print("Enter number of subjects: ");
+			   numOfSubjects = sc.nextInt();
+			  
+               if (numOfSubjects <= 0) {
+                   System.out.println("Please enter a number greater than 0.");
+                   continue;
+               }
+               break;
+           } catch (Exception e) {
+               System.out.println("Invalid input. Please enter a whole number.");
+               sc.nextLine();
+           }
+       }
+	   
+	   studentNames = new String[numOfStudents];
+       subjectNames = new String[numOfSubjects];
+       grades = new double[numOfStudents][numOfSubjects];
+       studentAve = new double[numOfStudents];
+             
+   }
            
-         System.out.println("------------------------------------------------------------------------------------------------");
-        
-         System.out.println("\nSUBJECT AVERAGE");
-         for (int subjects = 0; subjects < numOfSubjects; subjects++) {
-	         System.out.printf("Subject %s | Average: %.2f\n",
-	         subjectNames[subjects], subjectAverage[subjects]);
-         }
+   private static void inputSubjectNames() {   
+	   System.out.println("-----------------");
+	   sc.nextLine();
+	   for (int subjects = 0; subjects< numOfSubjects; subjects++) {         
+    	   System.out.print("Enter name for subject " + (subjects + 1) + ": " );
+    	   subjectNames[subjects]= sc.nextLine();
+       }
+       System.out.println("-----------------");
+   }
   
-         System.out.println();
-	     System.out.println("\nSUBJECT'S HIGHEST AND LOWEST");
-	     for (int subjects = 0; subjects < numOfSubjects; subjects++) {
-	    	 System.out.printf(subjectNames[subjects] + "'s Highest: %.2f | Lowest: %.2f\n",
-	    	 highestPerSubject[subjects], lowestPerSubject[subjects]);    
-	     }
-     
-	     
-	     //SORTED BY AVERAGE
+   private static void inputNamesAndGrades() {   
+       for (int students = 0; students < numOfStudents; students++) {
+    	   System.out.print("Enter Student " + (students + 1) + " Name: ");
+    	   studentNames[students] = sc.nextLine();
+    	   System.out.println(studentNames[students] + "'s Grades ");           	
+    	   for (int subjects = 0; subjects < numOfSubjects; subjects++) {
+    		   while (true) {
+    			   try {  
+    				   System.out.print("Enter grade for " + subjectNames[subjects] + ": ");
+    				   grades[students][subjects] = sc.nextDouble();		
+    				  
+    				   if (grades[students][subjects] < 0 || grades[students][subjects] > 100) {
+    					   System.out.println("Invalid grade. Please enter a grade from 0 to 100.");
+    					   } else {
+    						   grades[students][subjects] = grades[students][subjects]; 
+    						   computeAverage(students, subjects);    					
+    						   break;
+    						   }
+    				   } catch (Exception e) {
+    					   System.out.println("Invalid input. Please enter a numeric grade.");
+    					   sc.nextLine();
+    					   }
+    			   }
+    		   }
+       	sc.nextLine();  
+       	System.out.println("-----------------");   	
+       }  
+       System.out.println();
+   }    
+    
+   private static void computeAverage(int students, int subjects) {		   
+	   studentAve[students] += (grades[students][subjects])/numOfSubjects;
+   }
+   
+   private static void displayStudentGradesAndAverage() {
+	   System.out.print("Names\t\t");
+       for (int subjects = 0; subjects < subjectNames.length; subjects++) {
+           System.out.print(subjectNames[subjects] + "\t\t");
+       }
+       
+       System.out.println("| Average");
+       System.out.println("------------------------------------------------------------------------------------------------");
+             
+       for (int students = 0; students < grades.length; students++) {      	
+      	System.out.print(studentNames[students] + "\t\t");
+      	
+      	for (int subjects = 0; subjects < grades[students].length; subjects++) {
+              System.out.printf("%.2f",grades[students][subjects]);
+              System.out.print("\t\t");
+          }
+      	
+      	System.out.printf("| %.2f",(studentAve[students]));
+      	System.out.println();
+       }
+       
+       System.out.println("------------------------------------------------------------------------------------------------");
+   }
+ 
+   private static void sortStudentsByAverage() {
 	     System.out.println();
-	     System.out.println("\nSORTED STUDENTS BY AVERAGE");
+	     System.out.println("SORTED STUDENTS BY AVERAGE");
+	     System.out.println("-----------------");
 	     for (int i = 0; i < numOfStudents - 1; i++) { 
 	    	 for (int j = 0; j < numOfStudents - i - 1; j++) { 
 	    		 if (studentAve[j] < studentAve[j + 1]) { 
@@ -208,64 +186,94 @@ public class Group4 {
 	    			 studentNames[j] = studentNames[j + 1]; 
 	    			 studentNames[j + 1] = tempName;
 	    			 
-	    			 double[] tempGrades = arrOfGrades[j]; 
-	    			 arrOfGrades[j] = arrOfGrades[j + 1]; 
-	    			 arrOfGrades[j + 1] = tempGrades; 
+	    			 double[] tempGrades = grades[j]; 
+	    			 grades[j] = grades[j + 1]; 
+	    			 grades[j + 1] = tempGrades; 
 	    			 } 
 	    		 } 
 	    	 }
-	
-         System.out.print("Names\t\t");
-         for (int subjects = 0; subjects < subjectNames.length; subjects++) {
-             System.out.print(subjectNames[subjects] + "\t\t");
-         }
-        
-         
-         System.out.println("Average");
-         System.out.println("------------------------------------------------------------------------------------------------");
-         for (int students = 0; students < arrOfGrades.length; students++) {      	
-        	System.out.print(studentNames[students] + "\t\t");
-        	
-        	for (int subjects = 0; subjects < arrOfGrades[students].length; subjects++) {
-                System.out.print(arrOfGrades[students][subjects] + " \t\t");             
-            }
-        	
-        	System.out.printf("%.2f",(studentAve[students]/numOfSubjects));
-            System.out.println();
-         }
-         
-         System.out.println("------------------------------------------------------------------------------------------------");
-         System.out.println();
-         System.out.println("\nTOP 3 STUDENTS");
+	     
+	     displayStudentGradesAndAverage();
+	     
+	    
+	     System.out.println("\nTOP 3 STUDENTS");
+	     System.out.println("-----------------");
 	     for (int students = 0; students < numOfStudents; students++) {
 	    	 if (students < 3) {
-	    	 System.out.printf("Top %d | %s | Average: %.2f\n", students + 1, studentNames[students], (studentAve[students]/numOfSubjects));
+	    		 System.out.printf("Top %d | %s | Average: %.2f\n", students + 1, studentNames[students], studentAve[students]);
+	    		 }
 	    	 }
-	     }
-     
-	     
-	     System.out.println("\nFAILED STUDENTS");
-	        boolean someoneFailed = false;
-
-	        for (int students = 0; students < numOfStudents; students++) {
-	            for (int subject = 0; subject < numOfSubjects; subject++) {
-
-	                if (arrOfGrades[students][subject] < 75.0) {
-	                    System.out.println(studentNames[students] + " failed in " + subjectNames[subject] + " (" + arrOfGrades[students][subject] + ")");
-	                    someoneFailed = true;   
-	                }
-	                
-	            }
-	        }
-
-	        if (!someoneFailed) {
-	            System.out.println("No students failed!");
-	        }
-    sc.close();
    }
+    
+   private static void displaySubjectDetails() {	   
+	   double [] subjectAve = new double[numOfSubjects];
+	   double [] highestPerSubject = new double[numOfSubjects];
+	   double [] lowestPerSubject = new double[numOfSubjects]; 
+	   
+	   
+	   for (int subjects = 0; subjects < numOfSubjects; subjects++) {  
+		   double max = grades[0][subjects];
+		   double min = grades[0][subjects];
+		   
+			for (int students = 0; students < numOfStudents; students++) {
+				subjectAve[subjects] += (grades[students][subjects])/numOfSubjects;
+				
+				if (grades[students][subjects] > max) {
+					max = grades[students][subjects];
+				}
+				
+				if (grades[students][subjects] < min) {
+					min = grades[students][subjects];
+				}
+			}
+			highestPerSubject[subjects] = max;
+			lowestPerSubject[subjects] = min;	
+	   }
+	   
+	   
+       System.out.println("\nSUBJECT AVERAGE");
+       System.out.println("-----------------");
+       for (int subjects = 0; subjects < numOfSubjects; subjects++) {
+	         System.out.printf("%s Average: %.2f\n",
+	         subjectNames[subjects], subjectAve[subjects]);
+       }
+
+	     System.out.println("\nSUBJECT'S HIGHEST AND LOWEST");
+	     System.out.println("-----------------");
+	     for (int subjects = 0; subjects < numOfSubjects; subjects++) {
+	    	 System.out.printf(subjectNames[subjects] + "'s Highest: %.2f | Lowest: %.2f\n",
+	    	 highestPerSubject[subjects], lowestPerSubject[subjects]);    
+	     }
+   
+   }
+   
+   private static void displayFailedSubjects() {	   
+	   System.out.println("\nSTUDENTS WITH FAILED SUBJECTS");
+	   System.out.println("-----------------");
+       
+	   boolean someoneFailed = false;
+
+       for (int students = 0; students < numOfStudents; students++) {
+           for (int subject = 0; subject < numOfSubjects; subject++) {
+
+               if (grades[students][subject] < 75.0) {
+                   System.out.println(studentNames[students] + " failed in " + subjectNames[subject] + " (" + grades[students][subject] + ")");
+                   someoneFailed = true;   
+               }
+               
+           }
+       }
+
+       if (!someoneFailed) {
+           System.out.println("No students failed in any subject!");
+       }
+   }
+   
+   
 }
           
-            
+
+
             
             
         
