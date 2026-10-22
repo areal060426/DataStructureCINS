@@ -1,11 +1,12 @@
 package FinalsActivity1;
 
+import java.util.Arrays;
+
 public class Rules {
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 //		Create a Java program named GroupName using:
-//			int[] numbers = {45, 12, 89, 33, 67, 21, 90, 54};
 //			Your program must:
 //			1.	Display the original array using Arrays.toString().
 //			2.	Create an independent copy using Arrays.copyOf().
@@ -23,6 +24,8 @@ public class Rules {
 //			Highest: 90
 //			67 found at sorted index 5
 //			Arrays are equal: false
+		
+		
 
 	}
 
