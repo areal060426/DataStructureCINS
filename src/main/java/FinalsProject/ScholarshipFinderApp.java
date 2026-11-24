@@ -6,8 +6,7 @@ import java.awt.*;
 import java.util.ArrayList;
 
 public class ScholarshipFinderApp extends JFrame {
-
-    
+	
     public static final Color COL_CREAM       = Color.decode("#F1ECCF");
     public static final Color COL_SKY_BLUE    = Color.decode("#8BA8CC");
     public static final Color COL_OFF_WHITE   = Color.decode("#FAF7F0");
@@ -385,7 +384,7 @@ public class ScholarshipFinderApp extends JFrame {
 		allScholarships.add(new Scholarship(
 				"Tzu Chi Educational Assistance Program",
 				"Tzu Chi Philippines",
-				"public",
+				"Public",
 				"Helps first year college students from low income families stay in school, with financial aid and a class on values and life skills",
 				"First year college students from low-income families in Metro Manila and nearby Rizal, enrolled in one of nine partner state universities and colleges,\n"
 				+ " with a general weighted average of 2.25 (82%) or better. Pass interview, and agree to a home visit by Tzu Chi's social workers, staff and volunteers. \n"
@@ -397,7 +396,7 @@ public class ScholarshipFinderApp extends JFrame {
 		allScholarships.add(new Scholarship(
 				"Cebu City Government College Scholarship Program",
 				"Cebu City LGU",
-				"Local Government Unit (LGU) / Need-Based & Residency Scholarship",
+				"Government",
 				"Private Universities/Colleges: 10,000 tuition subsidy per semester + 1,000 school supplies allowance per semester. State Universities/Colleges (SUCs): P2,500 school supplies allowance per semester. Mountain Barangay Residents: Additional P5,000 transportation allowance per semester",
 				"Must be a bonafide resident of Cebu City whose parents/guardians (or the applicant, if over 21/25) are registered Cebu City voters who voted in the last two \n"
 				+ "local/national elections. Must be a graduate of a Cebu City public high school, ALS/PEPT, or a Cebu City private high school under a scholarship/voucher grant \n"
@@ -584,6 +583,7 @@ public class ScholarshipFinderApp extends JFrame {
 				}
 				JOptionPane.showMessageDialog(this, "Invalid username or password.", "Login Failed", JOptionPane.ERROR_MESSAGE);
 			});
+			
 			// --- TAB 2: REGISTER ---
 			JPanel regPanel = new JPanel(new GridLayout(11, 2, 8, 8));
 			regPanel.setBackground(COL_OFF_WHITE);
@@ -684,7 +684,7 @@ public class ScholarshipFinderApp extends JFrame {
 			controls.setOpaque(false);
 			searchField = new JTextField(16);
 			searchField.setToolTipText("Search by keyword (e.g. DOST, Ateneo, Stipend)");
-			String[] cats = {"All Categories", "Government", "Foundation", "University"};
+			String[] cats = {"All Categories", "Government", "Foundation", "University", "Private"};
 			categoryFilterBox = new JComboBox<>(cats);
 			JButton searchBtn = createStyledButton("Filter", COL_SKY_BLUE, COL_NAVY);
 			searchBtn.addActionListener(e -> refreshScholarshipCards(showingBestMatches));
@@ -919,6 +919,7 @@ public class ScholarshipFinderApp extends JFrame {
 			btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
 			return btn;
 	}
+	
 	public static void main(String[] args) {
 			SwingUtilities.invokeLater(() -> {
 			new ScholarshipFinderApp().setVisible(true);
