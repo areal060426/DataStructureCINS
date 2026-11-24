@@ -7,8 +7,7 @@ import java.awt.*;
 import java.util.ArrayList;
 
 public class ScholarshipFinderApp extends JFrame {
-
-    // --- CUSTOM COLOR PALETTE FROM IMAGE ---
+	
     public static final Color COL_CREAM       = Color.decode("#F1ECCF");
     public static final Color COL_SKY_BLUE    = Color.decode("#8BA8CC");
     public static final Color COL_OFF_WHITE   = Color.decode("#FAF7F0");
@@ -16,31 +15,39 @@ public class ScholarshipFinderApp extends JFrame {
     public static final Color COL_YELLOW      = Color.decode("#F9DC85");
     public static final Color COL_BROWN       = Color.decode("#7D6441");
 
-    // --- DATA STRUCTURES (EXPLICIT java.util.ArrayList) ---
+
     private java.util.ArrayList<Student> registeredStudents = new java.util.ArrayList<>();
     private java.util.ArrayList<Scholarship> allScholarships = new java.util.ArrayList<>();
     private Student currentUser = null;
 
-    // --- UI COMPONENTS ---
+
     private CardLayout mainCardLayout = new CardLayout();
     private JPanel mainContainer = new JPanel(mainCardLayout);
     private JPanel topNavBar;
     private JLabel userGreetingLabel;
 
-    // Dashboard Panels
+
     private JPanel scholarshipListPanel;
     private JLabel viewTitleLabel;
     private JTextField searchField;
     private JComboBox<String> categoryFilterBox;
+    private boolean showingBestMatches = true;
 
-    // Profile Edit Fields
+
     private JTextField profNameField, profGwaField, profIncomeField;
     private JComboBox<String> profFieldBox, profGenderBox;
     private JCheckBox profOfwCheck, profPublicHsCheck, profAgriCheck, profIndigentCheck;
 
+    private JTextField loginUserField;
+    private JPasswordField loginPassField;
+    private JTextField regName, regUser, regGwa, regIncome;
+    private JPasswordField regPass;
+    private JComboBox<String> regFieldBox, regGenderBox;
+    private JCheckBox chkOfw, chkPublic, chkAgri, chkIndigent;
+
     public ScholarshipFinderApp() {
-        setTitle("IskoLARP - College Scholarship Finder");
-        setSize(1050, 720);
+        setTitle("IskoLARP - Scholarship Locator, Application, and Requirements Planner");
+        setSize(1250, 720);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
@@ -49,6 +56,15 @@ public class ScholarshipFinderApp extends JFrame {
         seedDemoStudent();
 
         buildTopNavBar();
+        JButton btnReminders = createNavButton("My Reminders", COL_OFF_WHITE, COL_NAVY);
+        btnReminders.addActionListener(e -> {
+            if (currentUser == null || currentUser.savedReminders.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "No saved reminders yet. Click 'Add to Calendar' on any card!");
+            } else {
+                JOptionPane.showMessageDialog(this, String.join("\n", currentUser.savedReminders), "My Reminders", JOptionPane.INFORMATION_MESSAGE);
+            }
+        });
+        
         add(topNavBar, BorderLayout.NORTH);
         topNavBar.setVisible(false);
 
@@ -59,10 +75,6 @@ public class ScholarshipFinderApp extends JFrame {
         add(mainContainer, BorderLayout.CENTER);
         mainCardLayout.show(mainContainer, "AUTH");
     }
-
-    // =========================================================================
-    // 1. DATA MODELS
-    // =========================================================================
 
     static class Student {
         String username;
@@ -76,7 +88,13 @@ public class ScholarshipFinderApp extends JFrame {
         boolean isPublicHsGrad;
         boolean isFarmerFisherChild;
         boolean isLowIncomeListahanan;
+        java.util.ArrayList<String> savedReminders = new java.util.ArrayList<>();
+        java.util.ArrayList<Scholarship> bookmarkedScholarships = new java.util.ArrayList<>();
+        java.util.Stack<Scholarship> undoBookmarkStack = new java.util.Stack<>();
 
+        // Feature #1: Document Checklist Tracker (Scholarship Name -> Checked Document Indices)
+        java.util.HashMap<String, boolean[]> documentChecklists = new java.util.HashMap<>();
+        
         public Student(String username, String password, String fullName, double gwa,
                        double annualFamilyIncome, String preferredField, String gender,
                        boolean isOfwDependent, boolean isPublicHsGrad,
@@ -130,10 +148,6 @@ public class ScholarshipFinderApp extends JFrame {
             this.agriChildOnly = agriChildOnly;
         }
     }
-
-    // =========================================================================
-    // 2. LOAD SCHOLARSHIPS FROM GLOBE TELECOM REFERENCE GUIDE
-    // =========================================================================
 
     private void loadScholarshipsFromGuide() {
         allScholarships.add(new Scholarship(
@@ -221,534 +235,942 @@ public class ScholarshipFinderApp extends JFrame {
                 "Ayala Foundation",
                 "Foundation",
                 "₱40,000 per year, renewable upon maintaining good academic standing.",
-"Female Filipino student enrolled in a public college/university; GWA of at least 85% with no failing grades; Demonstrates financial need.",
-"Call: (02) 7759-8288 | Facebook: Ayala Foundation",
-85.0, 400000, "Any", true, false, false, false
-));
-allScholarships.add(new Scholarship(
-"SM Foundation College Scholarship",
-"SM Foundation",
-"Foundation",
-"Full tuition in partner schools, monthly allowance, and paid part-time jobs during breaks.",
-"Grade 12 public school graduate (or private with DepEd voucher); GWA >= 92%; Family income <= ₱250,000; Courses in Accounting, IT, Engineering, or Education.",
-"SM Foundation Application Portal | Call: (02) 8857-0100 loc. 1678",
-92.0, 250000, "Business/IT/Eng/Educ", false, false, true, false
-));
-allScholarships.add(new Scholarship(
-"Aboitiz Foundation College Scholarship",
-"Aboitiz Foundation",
-"Foundation",
-"Full tuition, monthly allowance, board exam review stipend, and Latin honors incentives.",
-"Incoming sophomore in a partner university; First-year college GWA of at least 88%; No dropped/failing grades or disciplinary record.",
-"Call: (02) 8886-2800 loc. 12666",
-88.0, 0, "Any", false, false, false, false
-));
-allScholarships.add(new Scholarship(
-"Megaworld Foundation Scholarship",
-"Megaworld Foundation",
-"Foundation",
-"Full tuition, monthly allowance via ATM card, and career opportunities in Megaworld affiliates.",
-"Incoming freshman/sophomore/junior with at least 85% GWA; Combined annual family income not exceeding ₱400,000.",
-"Call: (02) 8894-6437 to 38",
-85.0, 400000, "Any", false, false, false, false
-));
-allScholarships.add(new Scholarship(
-"Iskolar ng LANDBANK Program",
-"LANDBANK of the Philippines",
-"Foundation",
-"Full tuition coverage and monthly living/book allowance.",
-"Child/grandchild of an agrarian reform beneficiary, small farmer, or fisherfolk in priority provinces; Family income <= ₱300,000.",
-"Call: (02) 8405-7000",
-85.0, 300000, "Any", false, false, false, true
-));
-allScholarships.add(new Scholarship(
-"Ateneo de Manila: Merit, Financial Aid & Magis Grants",
-"Ateneo de Manila University (ADMU)",
-"University",
-"25% to 100% tuition/fees discount; Top ACET scorers & Magis scholars receive ₱50k–₱100k allowance, dorm, and book support.",
-"Strong ACET performance, high academic standing, and/or demonstrated financial need (also includes Fr. Nebres & Jose P. Rizal public HS valedictorian grants).",
-"ADMU Office of Admissions and Aid: (02) 8426-6001 loc. 5154",
-90.0, 0, "Any", false, false, false, false
-));
-allScholarships.add(new Scholarship(
-"DLSU: Archer Achiever, Star & Vaugirard Grants",
-"De La Salle University (DLSU)",
-"University",
-"Full tuition and fees waiver; Vaugirard and Gokongwei Engineering scholars receive monthly stipends.",
-"Top DCAT examinees, public science high school graduates, engineering applicants, or students with financial need (St. La Salle Grant).",
-"DLSU Office for Admissions and Scholarships: (02) 8524-4611 loc. 162",
-90.0, 0, "Any", false, false, false, false
-));
-allScholarships.add(new Scholarship(
-"UST: Santo Tomas, San Lorenzo Ruiz & Equity Grants",
-"University of Santo Tomas (UST)",
-"University",
-"Full or partial tuition discounts for academic achievers, athletes/artists, and student assistants.",
-"Valedictorians/Salutatorians (Santo Tomas), students in financial need rendering 20–30 hrs/wk assistance (San Lorenzo Ruiz), or varsity/arts talents.",
-"UST Office for Student Affairs: (02) 8786-1611 loc. 8276",
-88.0, 0, "Any", false, false, false, false
-));
-allScholarships.add(new Scholarship(
-"UA&P: Merit, Dr. Placido Mapa & Financial Aid Grants",
-"University of Asia and the Pacific (UA&P)",
-"University",
-"Up to 100% tuition coverage; Top endowment scholars receive ₱8,000/month stipend, laptop, and internet allowance.",
-"Merit: >= 90% HS average & UAPEE; Financial Aid: >= 85% HS average & family income below ₱800,000.",
-"UA&P Admissions: (02) 8637-0912 to 26",
-85.0, 800000, "Any", false, false, false, false
-));
-allScholarships.add(new Scholarship(
-"Mapúa: E.T. Yuchengco & Don Tomas Mapúa Grants",
-"Mapúa University",
-"University",
-"40% to 100% tuition discount plus up to ₱40,000 annual stipend and ₱12,000 book allowance.",
-"Graduated With Highest Honors (Don Tomas), top MPASS exam scorers (E.T. Yuchengco), or Public Science HS graduates under IBFAP.",
-"Mapúa Admissions: (02) 8247-5000 loc. 51230",
-88.0, 0, "STEM", false, false, false, false
-));
+				"Female Filipino student enrolled in a public college/university; GWA of at least 85% with no failing grades; Demonstrates financial need.",
+				"Call: (02) 7759-8288 | Facebook: Ayala Foundation",
+				85.0, 400000, "Any", true, false, false, false
+				));
+
+		allScholarships.add(new Scholarship(
+				"SM Foundation College Scholarship",
+				"SM Foundation",
+				"Foundation",
+				"Full tuition in partner schools, monthly allowance, and paid part-time jobs during breaks.",
+				"Grade 12 public school graduate (or private with DepEd voucher); GWA >= 92%; Family income <= ₱250,000; Courses in Accounting, IT, Engineering, or Education.",
+				"SM Foundation Application Portal | Call: (02) 8857-0100 loc. 1678",
+				92.0, 250000, "Business/IT/Eng/Educ", false, false, true, false
+		));
+
+		allScholarships.add(new Scholarship(
+				"Aboitiz Foundation College Scholarship",
+				"Aboitiz Foundation",
+				"Foundation",
+				"Full tuition, monthly allowance, board exam review stipend, and Latin honors incentives.",
+				"Incoming sophomore in a partner university; First-year college GWA of at least 88%; No dropped/failing grades or disciplinary record.",
+				"Call: (02) 8886-2800 loc. 12666",
+				88.0, 0, "Any", false, false, false, false
+		));
+
+		allScholarships.add(new Scholarship(
+				"Megaworld Foundation Scholarship",
+				"Megaworld Foundation",
+				"Foundation",
+				"Full tuition, monthly allowance via ATM card, and career opportunities in Megaworld affiliates.",
+				"Incoming freshman/sophomore/junior with at least 85% GWA; Combined annual family income not exceeding ₱400,000.",
+				"Call: (02) 8894-6437 to 38",
+				85.0, 400000, "Any", false, false, false, false
+		));
+
+		allScholarships.add(new Scholarship(
+				"Iskolar ng LANDBANK Program",
+				"LANDBANK of the Philippines",
+				"Foundation",
+				"Full tuition coverage and monthly living/book allowance.",
+				"Child/grandchild of an agrarian reform beneficiary, small farmer, or fisherfolk in priority provinces; Family income <= ₱300,000.",
+				"Call: (02) 8405-7000",
+				85.0, 300000, "Any", false, false, false, true
+		));
+
+		allScholarships.add(new Scholarship(
+				"Ateneo de Manila: Merit, Financial Aid & Magis Grants",
+				"Ateneo de Manila University (ADMU)",
+				"University",
+				"25% to 100% tuition/fees discount; Top ACET scorers & Magis scholars receive ₱50k–₱100k allowance, dorm, and book support.",
+				"Strong ACET performance, high academic standing, and/or demonstrated financial need (also includes Fr. Nebres & Jose P. Rizal public HS valedictorian grants).",
+				"ADMU Office of Admissions and Aid: (02) 8426-6001 loc. 5154",
+				90.0, 0, "Any", false, false, false, false
+		));
+
+		allScholarships.add(new Scholarship(
+				"DLSU: Archer Achiever, Star & Vaugirard Grants",
+				"De La Salle University (DLSU)",
+				"University",
+				"Full tuition and fees waiver; Vaugirard and Gokongwei Engineering scholars receive monthly stipends.",
+				"Top DCAT examinees, public science high school graduates, engineering applicants, or students with financial need (St. La Salle Grant).",
+				"DLSU Office for Admissions and Scholarships: (02) 8524-4611 loc. 162",
+				90.0, 0, "Any", false, false, false, false
+		));
+
+		allScholarships.add(new Scholarship(
+				"UST: Santo Tomas, San Lorenzo Ruiz & Equity Grants",
+				"University of Santo Tomas (UST)",
+				"University",
+				"Full or partial tuition discounts for academic achievers, athletes/artists, and student assistants.",
+				"Valedictorians/Salutatorians (Santo Tomas), students in financial need rendering 20–30 hrs/wk assistance (San Lorenzo Ruiz), or varsity/arts talents.",
+				"UST Office for Student Affairs: (02) 8786-1611 loc. 8276",
+				88.0, 0, "Any", false, false, false, false
+		));
+
+		allScholarships.add(new Scholarship(
+				"UA&P: Merit, Dr. Placido Mapa & Financial Aid Grants",
+				"University of Asia and the Pacific (UA&P)",
+				"University",
+				"Up to 100% tuition coverage; Top endowment scholars receive ₱8,000/month stipend, laptop, and internet allowance.",
+				"Merit: >= 90% HS average & UAPEE; Financial Aid: >= 85% HS average & family income below ₱800,000.",
+				"UA&P Admissions: (02) 8637-0912 to 26",
+				85.0, 800000, "Any", false, false, false, false
+		));
+
+		allScholarships.add(new Scholarship(
+				"Mapúa: E.T. Yuchengco & Don Tomas Mapúa Grants",
+				"Mapúa University",
+				"University",
+				"40% to 100% tuition discount plus up to ₱40,000 annual stipend and ₱12,000 book allowance.",
+				"Graduated With Highest Honors (Don Tomas), top MPASS exam scorers (E.T. Yuchengco), or Public Science HS graduates under IBFAP.",
+				"Mapúa Admissions: (02) 8247-5000 loc. 51230",
+				88.0, 0, "STEM", false, false, false, false
+		));
+
+		allScholarships.add(new Scholarship(
+				"GSIS Scholarship Program",
+				"Government Service Insurance System (GSIS)",
+				"Government",
+				"PHP 15,000  per academic year and latin honors bonus around PHP 20,000-50,000",
+				"Parents must be GSIS member, SHS graduate, enrolled in a STEM bachelor’s degree program and have a GWA of at least 90% with no failing grade in SHS",
+				"(02) 8847-4747 Metro Manila 1-800-8-847-4747, (Globe/TM) or 1-800-10-847-4747 (Smart/Sun/TNT)",
+				90.0, 500000, "STEM", false, false, false, false
+		));
+
+		allScholarships.add(new Scholarship(
+				"San Miguel Foundation Scholarship",
+				"San Miguel Foundation, Inc. (SMFI)",
+				"Private",
+				"Full or partial coverage of tuition and miscellaneous fees, book, and living stipend.",
+				"Filipino SHS graduate with a GWA of at least 88% and an annual family income below PHP 400,000",
+				"(02) 8632-3000, www.sanmiguel.com.ph/csr",
+				88.0, 400000, "Any", false, false, false, false
+		));
+
+		allScholarships.add(new Scholarship(
+				"CLFI Scholarship",
+				"Cebuana Lhuillier Foundation Inc.",
+				"Private",
+				"Fixed Stipend: Up to 50,000 to help subsidize school-related and living expenses.",
+				"Must be a Filipino citizen and an incoming freshman or currently enrolled 1st to 4th year student at a public college or state university. \n"
+				+ "Your total annual family income must not exceed 350,000. Additionally, either you or an immediate relative must be an active Cebuana Lhuillier client, \n"
+				+ "and you are required to open a Cebuana Lhuillier Microsavings account to receive the grant.",
+				"clfi@pjlhuillier.com 0917 812 2737 (Globe) 0918 812 2737 (Smart)",
+				85.0, 350000, "Any", false, false, false, false
+		));
+
+		allScholarships.add(new Scholarship(
+				"JPL-SHL President's Scholarship",
+				"Lyceum Of The Philippines Manila Campus",
+				"Private",
+				"Free tuition and miscellaneous fees",
+				"Must be currently Grade 12 or a qualified candidate for graduation. Must belong to at least one of the following: Top 10% of the graduating batch of at \n"
+				+ "least 35 students (Grade 11 Ranking), or a Science High School student. Must have at least GPA/GWA of 90%. Must be of good character as certified by the \n"
+				+ "High School Principal. Must be a Filipino Citizen. Must pass the qualifying examination and interview given by the Scholarship Committee.",
+				"Not specified",
+				90.0, 0, "Any", false, false, false, false
+		));
+
+		allScholarships.add(new Scholarship(
+				"Achiever Scholarship",
+				"Centro Escolar University",
+				"Private",
+				"100% discount on tuition and miscellaneous fees for one (1) regular School Year. Provision of tablet computer (to be given once)",
+				"Must not be more than 25 years of age, Filipino citizen, possess good moral character as certified by the senior high school principal,\n"
+				+ " annual family income of not more than P 500,000.00, Grade 12 weighted average of 85% or higher with no lower than 85% in Science, Math, and English subjects",
+				"88889-7491; 8843-0300 | 8893-2461; 8893-2464 | ceumakatiadmission@ceu.edu.ph",
+				85.0, 500000, "Any", false, false, false, false
+		));
+
+		allScholarships.add(new Scholarship(
+				"Quezon City Scholarship",
+				"Quezon City Government - QC Youth Development Office (QCSP)",
+				"Public..",
+				"For tertiary students: QC Excel Scholarship, tuition fee grant per School year (max amount) P 110,000.00 and Stipend per School year P 50,000.00",
+				"Resident of Quezon City. Not a scholar of another Local Government Unit. Be enrolled/registered/accepted in any of the priority courses or specializations \n"
+				+ "identified by the Quezon City Government. Must pass interviews and aptitude/psychological tests to be administered by the Quezon City Government. \n"
+				+ "Must show proof of leadership/volunteer work/socio-civic engagements. Must have a GWA of at least 1.75 or its equivalent.",
+				"QCYDOSubmission@quezoncity.gov.ph, qcusubmission.qcydo@quezoncity.gov.ph, scholarshipstatus.qcydo@quezoncity.gov.ph",
+				88.0, 0, "Any", false, false, false, false
+		));
+
+		allScholarships.add(new Scholarship(
+				"Tzu Chi Educational Assistance Program",
+				"Tzu Chi Philippines",
+				"Public",
+				"Helps first year college students from low income families stay in school, with financial aid and a class on values and life skills",
+				"First year college students from low-income families in Metro Manila and nearby Rizal, enrolled in one of nine partner state universities and colleges,\n"
+				+ " with a general weighted average of 2.25 (82%) or better. Pass interview, and agree to a home visit by Tzu Chi's social workers, staff and volunteers. \n"
+				+ "Partner Schools: UP, UDM, PNU, PLM, PUP, TUP, University of Caloocan, QCU, Pamantasan ng Lungsod ng Marikina",
+				"https://tzuchi.org.ph/apply/",
+				82.0, 0, "Any", false, false, false, false
+		));
+
+		allScholarships.add(new Scholarship(
+				"Cebu City Government College Scholarship Program",
+				"Cebu City LGU",
+				"Government",
+				"Private Universities/Colleges: 10,000 tuition subsidy per semester + 1,000 school supplies allowance per semester. State Universities/Colleges (SUCs): P2,500 school supplies allowance per semester. Mountain Barangay Residents: Additional P5,000 transportation allowance per semester",
+				"Must be a bonafide resident of Cebu City whose parents/guardians (or the applicant, if over 21/25) are registered Cebu City voters who voted in the last two \n"
+				+ "local/national elections. Must be a graduate of a Cebu City public high school, ALS/PEPT, or a Cebu City private high school under a scholarship/voucher grant \n"
+				+ " (EVS/ESC), and must enroll in an accredited partner school.",
+				"Phone: (032) 266-1036/ (032) 231-1766/ (032) 503-30241 | Email: cebucityscholarshipprogram@gmail.com",
+				0.0, 400000, "Any", false, false, false, false
+		));
+
+		allScholarships.add(new Scholarship(
+				"Argao Tertiary Education Scholarship Assistance Program",
+				"Argao, Cebu LGU",
+				"Government",
+				"Not Specified",
+				"Visayas - Argao, Cebu; detailed eligibility not yet verified",
+				"https://crs.upv.edu.ph/cebu/views/scholarships.jsp",
+				0.0, 0, "Any", false, false, false, false
+		));
+
+		allScholarships.add(new Scholarship(
+				"Lapu-Lapu City Government Scholarship",
+				"Lapu-Lapu City LGU",
+				"Government",
+				"Not Specified",
+				"Visayas - Lapu-Lapu City; detailed eligibility not yet verified",
+				"https://crs.upv.edu.ph/cebu/views/scholarships.jsp",
+				0.0, 0, "Any", false, false, false, false
+		));
+
+    	}
+
+
+	private void seedDemoStudent() {
+			registeredStudents.add(new Student(
+			"student", "1234", "Juan Dela Cruz",
+			93.5, 240000, "STEM", "Male",
+			false, true, false, true
+			));
+	}
+
+	private void buildTopNavBar() {
+			topNavBar = new JPanel(new BorderLayout());
+			topNavBar.setBackground(COL_NAVY);
+			topNavBar.setBorder(new EmptyBorder(12, 20, 12, 20));
+			JPanel brandPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 12, 0));
+			brandPanel.setOpaque(false);
+			JLabel logoLabel = new JLabel("IskoLARP");
+			logoLabel.setFont(new Font("SansSerif", Font.BOLD, 20));
+			logoLabel.setForeground(COL_YELLOW);
+			userGreetingLabel = new JLabel("Welcome, Student!");
+			userGreetingLabel.setFont(new Font("SansSerif", Font.PLAIN, 14));
+			userGreetingLabel.setForeground(COL_OFF_WHITE);
+			brandPanel.add(logoLabel);
+			brandPanel.add(Box.createHorizontalStrut(10));
+			brandPanel.add(userGreetingLabel);
+			JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
+			buttonPanel.setOpaque(false);
+
+			  JButton btnBookmarks = createNavButton("🔖", COL_SKY_BLUE, COL_NAVY);
+		        btnBookmarks.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 13));
+		        btnBookmarks.setToolTipText("Saved Bookmarks");
+		        btnBookmarks.addActionListener(e -> showBookmarksDialog());
+			JButton btnBestMatch = createNavButton("Best Match For Me", COL_YELLOW, COL_NAVY);
+			JButton btnAllList   = createNavButton("All Scholarships", COL_SKY_BLUE, COL_NAVY);
+			JButton btnProfile   = createNavButton("My Details", COL_CREAM, COL_NAVY);
+			JButton btnLogout    = createNavButton("Logout", COL_BROWN, COL_OFF_WHITE);
+
+			btnBestMatch.addActionListener(e -> {
+				showingBestMatches = true;
+				searchField.setText("");
+				categoryFilterBox.setSelectedItem("All Categories");
+				mainCardLayout.show(mainContainer, "DASHBOARD");
+				refreshScholarshipCards(true);
+			});
+
+			btnAllList.addActionListener(e -> {
+				showingBestMatches = false;
+				mainCardLayout.show(mainContainer, "DASHBOARD");
+				searchField.setText("");
+				categoryFilterBox.setSelectedItem("All Categories");
+				refreshScholarshipCards(false);
+			});
+
+			btnProfile.addActionListener(e -> {
+				loadCurrentUserIntoProfileForm();
+				mainCardLayout.show(mainContainer, "PROFILE");
+			});
+
+			btnLogout.addActionListener(e -> {
+				currentUser = null;
+				loginUserField.setText("");
+				loginPassField.setText("");
+				regName.setText("");
+				regUser.setText("");
+				regPass.setText("");
+				regGwa.setText("90.0");
+				regIncome.setText("250000");
+				regFieldBox.setSelectedIndex(0);
+				regGenderBox.setSelectedIndex(0);
+				chkOfw.setSelected(false);
+				chkPublic.setSelected(false);
+				chkAgri.setSelected(false);
+				chkIndigent.setSelected(false);
+				topNavBar.setVisible(false);
+				mainCardLayout.show(mainContainer, "AUTH");
+			});
+			 JButton btnReminders = createNavButton("My Reminders", COL_OFF_WHITE, COL_NAVY);
+		        btnReminders.addActionListener(e -> {
+		            if (currentUser == null || currentUser.savedReminders.isEmpty()) {
+		                JOptionPane.showMessageDialog(this, "No saved reminders yet. Click 'Add to Calendar' on any card!");
+		            } else {
+		                JOptionPane.showMessageDialog(this, String.join("\n", currentUser.savedReminders), "My Reminders", JOptionPane.INFORMATION_MESSAGE);
+		            }
+		        });
+
+		        buttonPanel.add(btnBestMatch);
+		        buttonPanel.add(btnBookmarks);
+		        buttonPanel.add(btnAllList);
+		        buttonPanel.add(btnReminders);
+		        buttonPanel.add(btnProfile);
+		        buttonPanel.add(btnLogout);
+			topNavBar.add(brandPanel, BorderLayout.WEST);
+			topNavBar.add(buttonPanel, BorderLayout.EAST);
+	}
+
+	private JButton createNavButton(String text, Color bg, Color fg) {
+			JButton btn = new JButton(text);
+			btn.setBackground(bg);
+			btn.setForeground(fg);
+			btn.setFont(new Font("SansSerif", Font.BOLD, 13));
+			btn.setFocusPainted(false);
+
+			btn.setBorder(new CompoundBorder(
+			new LineBorder(COL_OFF_WHITE, 1, true),
+			new EmptyBorder(7, 14, 7, 14)
+			));
+
+			btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+			return btn;
+	}
+
+	private JPanel buildAuthScreen() {
+			JPanel wrapper = new JPanel(new GridBagLayout());
+			wrapper.setBackground(COL_OFF_WHITE);
+			JPanel authCard = new JPanel(new BorderLayout(0, 15));
+			authCard.setBackground(COL_CREAM);
+			authCard.setPreferredSize(new Dimension(540, 580));
+
+			authCard.setBorder(new CompoundBorder(
+			new LineBorder(COL_BROWN, 2, true),
+			new EmptyBorder(25, 30, 25, 30)
+			));
+
+			JPanel header = new JPanel(new GridLayout(2, 1));
+			header.setOpaque(false);
+			JLabel title = new JLabel("IskoLARP College Scholarship Portal", SwingConstants.CENTER);
+			title.setFont(new Font("SansSerif", Font.BOLD, 22));
+			title.setForeground(COL_NAVY);
+			JLabel subtitle = new JLabel("Login or Register to find scholarships tailored to your profile", SwingConstants.CENTER);
+			subtitle.setFont(new Font("SansSerif", Font.PLAIN, 13));
+			subtitle.setForeground(COL_BROWN);
+			header.add(title);
+			header.add(subtitle);
+			JTabbedPane tabs = new JTabbedPane();
+			tabs.setFont(new Font("SansSerif", Font.BOLD, 14));
+			tabs.setBackground(COL_SKY_BLUE);
+			tabs.setForeground(COL_NAVY);
+
+			// --- TAB 1: LOGIN ---
+			JPanel loginPanel = new JPanel(new GridBagLayout());
+			loginPanel.setBackground(COL_OFF_WHITE);
+			loginPanel.setBorder(new EmptyBorder(20, 25, 20, 25));
+			GridBagConstraints gbc = new GridBagConstraints();
+			gbc.fill = GridBagConstraints.HORIZONTAL;
+			gbc.insets = new Insets(8, 5, 8, 5);
+			loginUserField = new JTextField(18);
+			loginPassField = new JPasswordField(18);
+			JButton loginBtn = createStyledButton("Login & Find Scholarships", COL_NAVY, COL_YELLOW);		
+			getRootPane().setDefaultButton(loginBtn);
+
+			JLabel demoHint = new JLabel("Demo Account: Username = student | Password = 1234");
+			demoHint.setForeground(COL_BROWN);
+			gbc.gridx = 0; gbc.gridy = 0; loginPanel.add(new JLabel("Username:"), gbc);
+			gbc.gridx = 0; gbc.gridy = 1; loginPanel.add(loginUserField, gbc);
+			gbc.gridx = 0; gbc.gridy = 2; loginPanel.add(new JLabel("Password:"), gbc);
+			gbc.gridx = 0; gbc.gridy = 3; loginPanel.add(loginPassField, gbc);
+			gbc.gridx = 0; gbc.gridy = 4; loginPanel.add(loginBtn, gbc);
+			gbc.gridx = 0; gbc.gridy = 5; loginPanel.add(demoHint, gbc);
+
+			loginBtn.addActionListener(e -> {
+				String u = loginUserField.getText().trim();
+				String p = new String(loginPassField.getPassword()).trim();
+
+				for (Student s : registeredStudents) {
+					if (s.username.equalsIgnoreCase(u) && s.password.equals(p)) {
+						currentUser = s;
+						enterApp();
+						return;
+					}
+				}
+				JOptionPane.showMessageDialog(this, "Invalid username or password.", "Login Failed", JOptionPane.ERROR_MESSAGE);
+			});
+			
+			JPanel regPanel = new JPanel(new GridLayout(11, 2, 8, 8));
+			regPanel.setBackground(COL_OFF_WHITE);
+			regPanel.setBorder(new EmptyBorder(15, 20, 15, 20));
+			regName = new JTextField();
+			regUser = new JTextField();
+			regPass = new JPasswordField();
+			regGwa = new JTextField("90.0");
+			regIncome = new JTextField("250000");
+			String[] fields = {"Any", "STEM", "Business/IT/Eng/Educ", "Arts/Sports/Humanities"};
+			regFieldBox = new JComboBox<>(fields);
+			String[] genders = {"Female", "Male", "Prefer not to say"};
+			regGenderBox = new JComboBox<>(genders);
+			chkOfw = new JCheckBox("OFW Dependent (OWWA)");
+			chkPublic = new JCheckBox("Public High School Grad");
+			chkAgri = new JCheckBox("Farmer/Fisherfolk Child");
+			chkIndigent = new JCheckBox("4Ps / Listahanan");
+			chkOfw.setOpaque(false); chkPublic.setOpaque(false);
+			chkAgri.setOpaque(false); chkIndigent.setOpaque(false);
+			regPanel.add(new JLabel("Full Name:")); regPanel.add(regName);
+			regPanel.add(new JLabel("Username:")); regPanel.add(regUser);
+			regPanel.add(new JLabel("Password:")); regPanel.add(regPass);
+			regPanel.add(new JLabel("GWA (e.g., 92.5):")); regPanel.add(regGwa);
+			regPanel.add(new JLabel("Annual Family Income (₱):")); regPanel.add(regIncome);
+			regPanel.add(new JLabel("Preferred Course Field:")); regPanel.add(regFieldBox);
+			regPanel.add(new JLabel("Gender:")); regPanel.add(regGenderBox);
+			regPanel.add(chkOfw); regPanel.add(chkPublic);
+			regPanel.add(chkAgri); regPanel.add(chkIndigent);
+			JButton regSubmitBtn = createStyledButton("Create Account & Match", COL_NAVY, COL_YELLOW);
+			regPanel.add(new JLabel("")); regPanel.add(regSubmitBtn);
+
+			regSubmitBtn.addActionListener(e -> {
+				try {
+					String name = regName.getText().trim();
+					String user = regUser.getText().trim();
+					String pass = new String(regPass.getPassword()).trim();
+					double gwa = Double.parseDouble(regGwa.getText().trim());
+					double income = Double.parseDouble(regIncome.getText().trim());
+
+					if (name.isEmpty() || user.isEmpty() || pass.isEmpty()) {
+						JOptionPane.showMessageDialog(this, "Please fill in Name, Username, and Password.");
+						return;
+					}
+
+					for (Student existing : registeredStudents) {
+						if (existing.username.equalsIgnoreCase(user)) {
+						JOptionPane.showMessageDialog(this, "Username already exists! Choose another.");
+						return;
+						}
+					}
+
+					Student newStudent = new Student(
+					user, pass, name, gwa, income,
+					(String) regFieldBox.getSelectedItem(),
+					(String) regGenderBox.getSelectedItem(),
+					chkOfw.isSelected(), chkPublic.isSelected(),
+					chkAgri.isSelected(), chkIndigent.isSelected()
+					);
+
+					registeredStudents.add(newStudent);
+					currentUser = newStudent;
+					JOptionPane.showMessageDialog(this, "Registration successful! Finding your best scholarship matches...");
+					enterApp();
+				} catch (NumberFormatException ex) {
+				JOptionPane.showMessageDialog(this, "Please enter valid numbers for GWA and Family Income.", "Input Error", JOptionPane.ERROR_MESSAGE);
+				}
+			});
+			tabs.addTab("Login", loginPanel);
+			tabs.addTab("Register Student", new JScrollPane(regPanel));
+			authCard.add(header, BorderLayout.NORTH);
+			authCard.add(tabs, BorderLayout.CENTER);
+			wrapper.add(authCard);
+			return wrapper;
+	}
+
+	private void enterApp() {
+			showingBestMatches = true;
+			userGreetingLabel.setText("Student: " + currentUser.fullName + " | GWA: " + currentUser.gwa + "% | Income: ₱" + String.format("%,.0f", currentUser.annualFamilyIncome));
+			topNavBar.setVisible(true);
+			mainCardLayout.show(mainContainer, "DASHBOARD");
+			refreshScholarshipCards(true);
+			}
+
+	private JPanel buildDashboardScreen() {
+			JPanel dashboard = new JPanel(new BorderLayout(10, 10));
+			dashboard.setBackground(COL_OFF_WHITE);
+			dashboard.setBorder(new EmptyBorder(15, 20, 15, 20));
+			JPanel filterBar = new JPanel(new BorderLayout(10, 10));
+			filterBar.setBackground(COL_CREAM);
+			filterBar.setBorder(new CompoundBorder(
+			new LineBorder(COL_SKY_BLUE, 1, true),
+			new EmptyBorder(12, 15, 12, 15)
+			));
+			viewTitleLabel = new JLabel("Recommended Scholarships For You");
+			viewTitleLabel.setFont(new Font("SansSerif", Font.BOLD, 18));
+			viewTitleLabel.setForeground(COL_NAVY);
+			JPanel controls = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
+			controls.setOpaque(false);
+			searchField = new JTextField(16);
+			searchField.setToolTipText("Search by keyword (e.g. DOST, Ateneo, Stipend)");
+			String[] cats = {"All Categories", "Government", "Foundation", "University", "Private"};
+			categoryFilterBox = new JComboBox<>(cats);
+			JButton searchBtn = createStyledButton("Filter", COL_SKY_BLUE, COL_NAVY);
+			searchBtn.addActionListener(e -> refreshScholarshipCards(showingBestMatches));
+			controls.add(new JLabel("Keyword:"));
+			controls.add(searchField);
+			controls.add(new JLabel("Type:"));
+			controls.add(categoryFilterBox);
+			controls.add(searchBtn);
+			filterBar.add(viewTitleLabel, BorderLayout.WEST);
+			filterBar.add(controls, BorderLayout.EAST);
+			scholarshipListPanel = new JPanel(new GridLayout(0, 1, 0, 12));
+			scholarshipListPanel.setBackground(COL_OFF_WHITE);
+			JScrollPane scrollPane = new JScrollPane(scholarshipListPanel);
+			scrollPane.setBorder(null);
+			scrollPane.getViewport().setBackground(COL_OFF_WHITE);
+			scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+			scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+			dashboard.add(filterBar, BorderLayout.NORTH);
+			dashboard.add(scrollPane, BorderLayout.CENTER);
+			return dashboard;
+	}
+
+	private void refreshScholarshipCards(boolean onlyBestMatches) {
+			showingBestMatches = onlyBestMatches;
+		scholarshipListPanel.removeAll();
+			String keyword = searchField.getText().trim().toLowerCase();
+			String selectedCat = (String) categoryFilterBox.getSelectedItem();
+			java.util.ArrayList<Scholarship> displayList = new java.util.ArrayList<>();
+
+			for (Scholarship s : allScholarships) {
+				if (!"All Categories".equals(selectedCat) && !s.category.equalsIgnoreCase(selectedCat)) {
+					continue;
+				}
+
+				if (!keyword.isEmpty() &&
+				!s.name.toLowerCase().contains(keyword) &&
+				!s.provider.toLowerCase().contains(keyword) &&
+				!s.benefits.toLowerCase().contains(keyword) &&
+				!s.qualificationsSummary.toLowerCase().contains(keyword)) {
+					continue;
+				}
+
+				if (onlyBestMatches && currentUser != null) {
+					if (!isEligibleForStudent(s, currentUser)) {
+						continue;
+					}
+				}
+
+			displayList.add(s);
+			}
+
+
+			if (onlyBestMatches) {
+				viewTitleLabel.setText("Recommended Scholarships For You (" + displayList.size() + " Matches)");
+			} else {
+				viewTitleLabel.setText("Complete Philippine College Scholarship Directory (" + displayList.size() + " Total)");
+			}
+			if (displayList.isEmpty()) {
+			    JLabel emptyMsg = new JLabel("No scholarships matched your current filters. Click 'All Scholarships' at the top.");
+			    emptyMsg.setFont(new Font("SansSerif", Font.BOLD, 15));
+			    emptyMsg.setForeground(COL_BROWN);
+			    scholarshipListPanel.add(emptyMsg);
+			} else {
+			    for (Scholarship s : displayList) {
+			        scholarshipListPanel.add(createScholarshipCard(s));
+			    }
+			}
+			scholarshipListPanel.revalidate();
+			scholarshipListPanel.repaint();
+	}
+
+	private boolean isEligibleForStudent(Scholarship s, Student st) {
+			if (st.gwa < s.minGwa) return false;
+			if (s.maxIncome > 0 && st.annualFamilyIncome > s.maxIncome) return false;
+			if (s.femaleOnly && !"Female".equalsIgnoreCase(st.gender)) return false;
+			if (s.ofwOnly && !st.isOfwDependent) return false;
+			if (s.agriChildOnly && !st.isFarmerFisherChild) return false;
+			if (s.publicHsPreferred && !st.isPublicHsGrad) return false;
+
+			if (!"Any".equalsIgnoreCase(s.requiredField) && !"Any".equalsIgnoreCase(st.preferredField)) {
+				if (!s.requiredField.toLowerCase().contains(st.preferredField.toLowerCase()) &&
+				!st.preferredField.toLowerCase().contains(s.requiredField.toLowerCase())) {
+					return false;
+				}
+			}
+			return true;
+	}
+
+	private JPanel createScholarshipCard(Scholarship s) {
+			JPanel card = new JPanel(new BorderLayout(10, 8));
+			card.setBackground(COL_CREAM);
+			card.setPreferredSize(new Dimension(920, 165));
+			card.setMinimumSize(new Dimension(600, 165));
+			card.setBorder(new CompoundBorder(
+			new LineBorder(COL_BROWN, 1, true),
+			new EmptyBorder(14, 18, 14, 18)
+			));
+			JPanel topRow = new JPanel(new BorderLayout());
+			topRow.setOpaque(false);
+			JLabel nameLbl = new JLabel(s.name);
+			nameLbl.setFont(new Font("SansSerif", Font.BOLD, 17));
+			nameLbl.setForeground(COL_NAVY);
+			JLabel badgeLbl = new JLabel("  " + s.category.toUpperCase() + "  ");
+			badgeLbl.setOpaque(true);
+			badgeLbl.setFont(new Font("SansSerif", Font.BOLD, 11));
+
+			if ("Government".equals(s.category)) {
+				badgeLbl.setBackground(COL_NAVY);
+				badgeLbl.setForeground(COL_YELLOW);
+			} else if ("Foundation".equals(s.category)) {
+				badgeLbl.setBackground(COL_SKY_BLUE);
+				badgeLbl.setForeground(COL_NAVY);
+			} else {
+				badgeLbl.setBackground(COL_YELLOW);
+				badgeLbl.setForeground(COL_NAVY);
+			}
+
+			topRow.add(nameLbl, BorderLayout.WEST);
+			topRow.add(badgeLbl, BorderLayout.EAST);
+			JPanel centerInfo = new JPanel(new GridLayout(3, 1, 2, 4));
+			centerInfo.setOpaque(false);
+			JLabel providerLbl = new JLabel("Provider: " + s.provider);
+			providerLbl.setFont(new Font("SansSerif", Font.BOLD, 13));
+			providerLbl.setForeground(COL_BROWN);
+			JLabel benefitsLbl = new JLabel("Benefits: " + s.benefits);
+			benefitsLbl.setFont(new Font("SansSerif", Font.PLAIN, 13));
+			benefitsLbl.setForeground(Color.DARK_GRAY);
+			JLabel qualLbl = new JLabel("Qualifications: " + s.qualificationsSummary);
+			qualLbl.setFont(new Font("SansSerif", Font.PLAIN, 13));
+			qualLbl.setForeground(Color.DARK_GRAY);
+			centerInfo.add(providerLbl);
+			centerInfo.add(benefitsLbl);
+			centerInfo.add(qualLbl);
+			JPanel bottomRow = new JPanel(new BorderLayout());
+			bottomRow.setOpaque(false);
+			JLabel contactLbl = new JLabel("Contact: " + s.contactInfo);
+			contactLbl.setFont(new Font("SansSerif", Font.ITALIC, 12));
+			contactLbl.setForeground(COL_NAVY);
+			 JPanel actionBtns = new JPanel(new FlowLayout(FlowLayout.RIGHT, 6, 0));
+		        actionBtns.setOpaque(false);
+
+		        boolean isBookmarked = currentUser != null && currentUser.bookmarkedScholarships.contains(s);
+		        JButton bookmarkBtn = createStyledButton(isBookmarked ? "Bookmarked" : "Bookmark",
+		                isBookmarked ? COL_BROWN : COL_OFF_WHITE,
+		                isBookmarked ? COL_OFF_WHITE : COL_NAVY);
+		        bookmarkBtn.addActionListener(e -> toggleBookmark(s));
+
+		        JButton checklistBtn = createStyledButton("Doc Checklist", COL_NAVY, COL_YELLOW);
+		        checklistBtn.addActionListener(e -> openDocumentChecklistDialog(s));
+
+		        JButton calendarBtn = createStyledButton("Add to Calendar", COL_YELLOW, COL_NAVY);
+		        calendarBtn.addActionListener(e -> promptAndExportCalendar(s));
+
+		        JButton detailsBtn = createStyledButton("View Details", COL_SKY_BLUE, COL_NAVY);
+		        detailsBtn.addActionListener(e -> JOptionPane.showMessageDialog(
+		                this,
+		                "Scholarship: " + s.name + "\n" +
+		                "Provider: " + s.provider + "\n" +
+		                "Target Deadline: 2027-03-31\n\n" +
+		                "Benefits:\n" + s.benefits + "\n\n" +
+		                "Requirements:\n" + s.qualificationsSummary + "\n\n" +
+		                "How to Apply / Contact:\n" + s.contactInfo,
+		                "Scholarship Details",
+		                JOptionPane.INFORMATION_MESSAGE
+		        ));
+
+		        actionBtns.add(bookmarkBtn);
+		        actionBtns.add(checklistBtn);
+		        actionBtns.add(calendarBtn);
+		        actionBtns.add(detailsBtn);
+
+		        bottomRow.add(contactLbl, BorderLayout.WEST);
+		        bottomRow.add(actionBtns, BorderLayout.EAST);
+
+		        card.add(topRow, BorderLayout.NORTH);
+		        card.add(centerInfo, BorderLayout.CENTER);
+		        card.add(bottomRow, BorderLayout.SOUTH);
+
+		        return card;
+		    }
+
+	private JPanel buildProfileScreen() {
+			JPanel wrapper = new JPanel(new GridBagLayout());
+			wrapper.setBackground(COL_OFF_WHITE);
+			JPanel formCard = new JPanel(new GridLayout(11, 2, 10, 10));
+			formCard.setBackground(COL_CREAM);
+			formCard.setPreferredSize(new Dimension(560, 480));
+			formCard.setBorder(new CompoundBorder(
+			new LineBorder(COL_NAVY, 2, true),
+			new EmptyBorder(25, 30, 25, 30)
+			));
+
+			profNameField = new JTextField();
+			profGwaField = new JTextField();
+			profIncomeField = new JTextField();
+			profFieldBox = new JComboBox<>(new String[]{"Any", "STEM", "Business/IT/Eng/Educ", "Arts/Sports/Humanities"});
+			profGenderBox = new JComboBox<>(new String[]{"Female", "Male", "Prefer not to say"});
+			profOfwCheck = new JCheckBox("OFW Dependent (OWWA)");
+			profPublicHsCheck = new JCheckBox("Public High School Grad");
+			profAgriCheck = new JCheckBox("Farmer/Fisherfolk Child");
+			profIndigentCheck = new JCheckBox("4Ps / Listahanan");
+			profOfwCheck.setOpaque(false); profPublicHsCheck.setOpaque(false);
+			profAgriCheck.setOpaque(false); profIndigentCheck.setOpaque(false);
+			formCard.add(new JLabel("Full Name:")); formCard.add(profNameField);
+			formCard.add(new JLabel("General Weighted Average (GWA %):")); formCard.add(profGwaField);
+			formCard.add(new JLabel("Annual Family Gross Income (₱):")); formCard.add(profIncomeField);
+			formCard.add(new JLabel("Preferred Course Field:")); formCard.add(profFieldBox);
+			formCard.add(new JLabel("Gender:")); formCard.add(profGenderBox);
+			formCard.add(profOfwCheck); formCard.add(profPublicHsCheck);
+			formCard.add(profAgriCheck); formCard.add(profIndigentCheck);
+			JButton saveBtn = createStyledButton("Save & Re-Match Scholarships", COL_NAVY, COL_YELLOW);
+	
+			
+			saveBtn.addActionListener(e -> {
+				try {
+					currentUser.fullName = profNameField.getText().trim();
+					currentUser.gwa = Double.parseDouble(profGwaField.getText().trim());
+					currentUser.annualFamilyIncome = Double.parseDouble(profIncomeField.getText().trim());
+					currentUser.preferredField = (String) profFieldBox.getSelectedItem();
+					currentUser.gender = (String) profGenderBox.getSelectedItem();
+					currentUser.isOfwDependent = profOfwCheck.isSelected();
+					currentUser.isPublicHsGrad = profPublicHsCheck.isSelected();
+					currentUser.isFarmerFisherChild = profAgriCheck.isSelected();
+					currentUser.isLowIncomeListahanan = profIndigentCheck.isSelected();
+					enterApp();
+					JOptionPane.showMessageDialog(this, "Profile updated! Showing your new best matches.");
+				} catch (NumberFormatException ex) {
+					JOptionPane.showMessageDialog(this, "Please enter valid numeric values for GWA and Income.");
+				}
+			});
+			formCard.add(new JLabel(""));
+			formCard.add(saveBtn);
+			wrapper.add(formCard);
+			return wrapper;
+
+
 }
-private void seedDemoStudent() {
-registeredStudents.add(new Student(
-"student", "1234", "Juan Dela Cruz",
-93.5, 240000, "STEM", "Male",
-false, true, false, true
-));
-}
-// =========================================================================
-// 3. TOP NAVIGATION BAR
-// =========================================================================
-private void buildTopNavBar() {
-topNavBar = new JPanel(new BorderLayout());
-topNavBar.setBackground(COL_NAVY);
-topNavBar.setBorder(new EmptyBorder(12, 20, 12, 20));
-JPanel brandPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 12, 0));
-brandPanel.setOpaque(false);
-JLabel logoLabel = new JLabel("IskoLARP");
-logoLabel.setFont(new Font("SansSerif", Font.BOLD, 20));
-logoLabel.setForeground(COL_YELLOW);
-userGreetingLabel = new JLabel("Welcome, Student!");
-userGreetingLabel.setFont(new Font("SansSerif", Font.PLAIN, 14));
-userGreetingLabel.setForeground(COL_OFF_WHITE);
-brandPanel.add(logoLabel);
-brandPanel.add(Box.createHorizontalStrut(10));
-brandPanel.add(userGreetingLabel);
-JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
-buttonPanel.setOpaque(false);
-JButton btnBestMatch = createNavButton("Best Match For Me", COL_YELLOW, COL_NAVY);
-JButton btnAllList   = createNavButton("All Scholarships", COL_SKY_BLUE, COL_NAVY);
-JButton btnProfile   = createNavButton("My Details", COL_CREAM, COL_NAVY);
-JButton btnLogout    = createNavButton("Logout", COL_BROWN, COL_OFF_WHITE);
-btnBestMatch.addActionListener(e -> {
-mainCardLayout.show(mainContainer, "DASHBOARD");
-refreshScholarshipCards(true);
-});
-btnAllList.addActionListener(e -> {
-mainCardLayout.show(mainContainer, "DASHBOARD");
-refreshScholarshipCards(false);
-});
-btnProfile.addActionListener(e -> {
-loadCurrentUserIntoProfileForm();
-mainCardLayout.show(mainContainer, "PROFILE");
-});
-btnLogout.addActionListener(e -> {
-currentUser = null;
-topNavBar.setVisible(false);
-mainCardLayout.show(mainContainer, "AUTH");
-});
-buttonPanel.add(btnBestMatch);
-buttonPanel.add(btnAllList);
-buttonPanel.add(btnProfile);
-buttonPanel.add(btnLogout);
-topNavBar.add(brandPanel, BorderLayout.WEST);
-topNavBar.add(buttonPanel, BorderLayout.EAST);
-}
-private JButton createNavButton(String text, Color bg, Color fg) {
-JButton btn = new JButton(text);
-btn.setBackground(bg);
-btn.setForeground(fg);
-btn.setFont(new Font("SansSerif", Font.BOLD, 13));
-btn.setFocusPainted(false);
-btn.setBorder(new CompoundBorder(
-new LineBorder(COL_OFF_WHITE, 1, true),
-new EmptyBorder(7, 14, 7, 14)
-));
-btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
-return btn;
-}
-// =========================================================================
-// 4. LOGIN & REGISTRATION SCREEN
-// =========================================================================
-private JPanel buildAuthScreen() {
-JPanel wrapper = new JPanel(new GridBagLayout());
-wrapper.setBackground(COL_OFF_WHITE);
-JPanel authCard = new JPanel(new BorderLayout(0, 15));
-authCard.setBackground(COL_CREAM);
-authCard.setPreferredSize(new Dimension(540, 580));
-authCard.setBorder(new CompoundBorder(
-new LineBorder(COL_BROWN, 2, true),
-new EmptyBorder(25, 30, 25, 30)
-));
-JPanel header = new JPanel(new GridLayout(2, 1));
-header.setOpaque(false);
-JLabel title = new JLabel("IskoLARP College Scholarship Portal", SwingConstants.CENTER);
-title.setFont(new Font("SansSerif", Font.BOLD, 22));
-title.setForeground(COL_NAVY);
-JLabel subtitle = new JLabel("Login or Register to find scholarships tailored to your profile", SwingConstants.CENTER);
-subtitle.setFont(new Font("SansSerif", Font.PLAIN, 13));
-subtitle.setForeground(COL_BROWN);
-header.add(title);
-header.add(subtitle);
-JTabbedPane tabs = new JTabbedPane();
-tabs.setFont(new Font("SansSerif", Font.BOLD, 14));
-tabs.setBackground(COL_SKY_BLUE);
-tabs.setForeground(COL_NAVY);
-// --- TAB 1: LOGIN ---
-JPanel loginPanel = new JPanel(new GridBagLayout());
-loginPanel.setBackground(COL_OFF_WHITE);
-loginPanel.setBorder(new EmptyBorder(20, 25, 20, 25));
-GridBagConstraints gbc = new GridBagConstraints();
-gbc.fill = GridBagConstraints.HORIZONTAL;
-gbc.insets = new Insets(8, 5, 8, 5);
-JTextField loginUserField = new JTextField(18);
-JPasswordField loginPassField = new JPasswordField(18);
-JButton loginBtn = createStyledButton("Login & Find Scholarships", COL_NAVY, COL_YELLOW);
-JLabel demoHint = new JLabel("Demo Account: Username = student | Password = 1234");
-demoHint.setForeground(COL_BROWN);
-gbc.gridx = 0; gbc.gridy = 0; loginPanel.add(new JLabel("Username:"), gbc);
-gbc.gridx = 0; gbc.gridy = 1; loginPanel.add(loginUserField, gbc);
-gbc.gridx = 0; gbc.gridy = 2; loginPanel.add(new JLabel("Password:"), gbc);
-gbc.gridx = 0; gbc.gridy = 3; loginPanel.add(loginPassField, gbc);
-gbc.gridx = 0; gbc.gridy = 4; loginPanel.add(loginBtn, gbc);
-gbc.gridx = 0; gbc.gridy = 5; loginPanel.add(demoHint, gbc);
-loginBtn.addActionListener(e -> {
-String u = loginUserField.getText().trim();
-String p = new String(loginPassField.getPassword()).trim();
-for (Student s : registeredStudents) {
-if (s.username.equalsIgnoreCase(u) && s.password.equals(p)) {
-currentUser = s;
-enterApp();
-return;
-}
-}
-JOptionPane.showMessageDialog(this, "Invalid username or password.", "Login Failed", JOptionPane.ERROR_MESSAGE);
-});
-// --- TAB 2: REGISTER ---
-JPanel regPanel = new JPanel(new GridLayout(11, 2, 8, 8));
-regPanel.setBackground(COL_OFF_WHITE);
-regPanel.setBorder(new EmptyBorder(15, 20, 15, 20));
-JTextField regName = new JTextField();
-JTextField regUser = new JTextField();
-JPasswordField regPass = new JPasswordField();
-JTextField regGwa = new JTextField("90.0");
-JTextField regIncome = new JTextField("250000");
-String[] fields = {"Any", "STEM", "Business/IT/Eng/Educ", "Arts/Sports/Humanities"};
-JComboBox regFieldBox = new JComboBox<>(fields);
-String[] genders = {"Female", "Male", "Prefer not to say"};
-JComboBox regGenderBox = new JComboBox<>(genders);
-JCheckBox chkOfw = new JCheckBox("OFW Dependent (OWWA)");
-JCheckBox chkPublic = new JCheckBox("Public High School Grad");
-JCheckBox chkAgri = new JCheckBox("Farmer/Fisherfolk Child");
-JCheckBox chkIndigent = new JCheckBox("4Ps / Listahanan");
-chkOfw.setOpaque(false); chkPublic.setOpaque(false);
-chkAgri.setOpaque(false); chkIndigent.setOpaque(false);
-regPanel.add(new JLabel("Full Name:")); regPanel.add(regName);
-regPanel.add(new JLabel("Username:")); regPanel.add(regUser);
-regPanel.add(new JLabel("Password:")); regPanel.add(regPass);
-regPanel.add(new JLabel("GWA (e.g., 92.5):")); regPanel.add(regGwa);
-regPanel.add(new JLabel("Annual Family Income (₱):")); regPanel.add(regIncome);
-regPanel.add(new JLabel("Preferred Course Field:")); regPanel.add(regFieldBox);
-regPanel.add(new JLabel("Gender:")); regPanel.add(regGenderBox);
-regPanel.add(chkOfw); regPanel.add(chkPublic);
-regPanel.add(chkAgri); regPanel.add(chkIndigent);
-JButton regSubmitBtn = createStyledButton("Create Account & Match", COL_NAVY, COL_YELLOW);
-regPanel.add(new JLabel("")); regPanel.add(regSubmitBtn);
-regSubmitBtn.addActionListener(e -> {
-try {
-String name = regName.getText().trim();
-String user = regUser.getText().trim();
-String pass = new String(regPass.getPassword()).trim();
-double gwa = Double.parseDouble(regGwa.getText().trim());
-double income = Double.parseDouble(regIncome.getText().trim());
-if (name.isEmpty() || user.isEmpty() || pass.isEmpty()) {
-JOptionPane.showMessageDialog(this, "Please fill in Name, Username, and Password.");
-return;
-}
-for (Student existing : registeredStudents) {
-if (existing.username.equalsIgnoreCase(user)) {
-JOptionPane.showMessageDialog(this, "Username already exists! Choose another.");
-return;
-}
-}
-Student newStudent = new Student(
-user, pass, name, gwa, income,
-(String) regFieldBox.getSelectedItem(),
-(String) regGenderBox.getSelectedItem(),
-chkOfw.isSelected(), chkPublic.isSelected(),
-chkAgri.isSelected(), chkIndigent.isSelected()
-);
-registeredStudents.add(newStudent);
-currentUser = newStudent;
-JOptionPane.showMessageDialog(this, "Registration successful! Finding your best scholarship matches...");
-enterApp();
-} catch (NumberFormatException ex) {
-JOptionPane.showMessageDialog(this, "Please enter valid numbers for GWA and Family Income.", "Input Error", JOptionPane.ERROR_MESSAGE);
-}
-});
-tabs.addTab("Login", loginPanel);
-tabs.addTab("Register Student", new JScrollPane(regPanel));
-authCard.add(header, BorderLayout.NORTH);
-authCard.add(tabs, BorderLayout.CENTER);
-wrapper.add(authCard);
-return wrapper;
-}
-private void enterApp() {
-userGreetingLabel.setText("Student: " + currentUser.fullName + " | GWA: " + currentUser.gwa + "% | Income: ₱" + String.format("%,.0f", currentUser.annualFamilyIncome));
-topNavBar.setVisible(true);
-mainCardLayout.show(mainContainer, "DASHBOARD");
-refreshScholarshipCards(true);
-}
-// =========================================================================
-// 5. DASHBOARD & SCHOLARSHIP MATCHING VIEW
-// =========================================================================
-private JPanel buildDashboardScreen() {
-JPanel dashboard = new JPanel(new BorderLayout(10, 10));
-dashboard.setBackground(COL_OFF_WHITE);
-dashboard.setBorder(new EmptyBorder(15, 20, 15, 20));
-JPanel filterBar = new JPanel(new BorderLayout(10, 10));
-filterBar.setBackground(COL_CREAM);
-filterBar.setBorder(new CompoundBorder(
-new LineBorder(COL_SKY_BLUE, 1, true),
-new EmptyBorder(12, 15, 12, 15)
-));
-viewTitleLabel = new JLabel("Recommended Scholarships For You");
-viewTitleLabel.setFont(new Font("SansSerif", Font.BOLD, 18));
-viewTitleLabel.setForeground(COL_NAVY);
-JPanel controls = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
-controls.setOpaque(false);
-searchField = new JTextField(16);
-searchField.setToolTipText("Search by keyword (e.g. DOST, Ateneo, Stipend)");
-String[] cats = {"All Categories", "Government", "Foundation", "University"};
-categoryFilterBox = new JComboBox<>(cats);
-JButton searchBtn = createStyledButton("Filter", COL_SKY_BLUE, COL_NAVY);
-searchBtn.addActionListener(e -> refreshScholarshipCards(viewTitleLabel.getText().contains("Recommended")));
-controls.add(new JLabel("Keyword:"));
-controls.add(searchField);
-controls.add(new JLabel("Type:"));
-controls.add(categoryFilterBox);
-controls.add(searchBtn);
-filterBar.add(viewTitleLabel, BorderLayout.WEST);
-filterBar.add(controls, BorderLayout.EAST);
-scholarshipListPanel = new JPanel(new GridLayout(0, 1, 0, 12));
-scholarshipListPanel.setBackground(COL_OFF_WHITE);
-JScrollPane scrollPane = new JScrollPane(scholarshipListPanel);
-scrollPane.setBorder(null);
-scrollPane.getViewport().setBackground(COL_OFF_WHITE);
-scrollPane.getVerticalScrollBar().setUnitIncrement(16);
-scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-dashboard.add(filterBar, BorderLayout.NORTH);
-dashboard.add(scrollPane, BorderLayout.CENTER);
-return dashboard;
-}
-private void refreshScholarshipCards(boolean onlyBestMatches) {
-scholarshipListPanel.removeAll();
-String keyword = searchField.getText().trim().toLowerCase();
-String selectedCat = (String) categoryFilterBox.getSelectedItem();
-java.util.ArrayList<Scholarship> displayList = new java.util.ArrayList<>();
-for (Scholarship s : allScholarships) {
-if (!"All Categories".equals(selectedCat) && !s.category.equalsIgnoreCase(selectedCat)) {
-continue;
-}
-if (!keyword.isEmpty() &&
-!s.name.toLowerCase().contains(keyword) &&
-!s.provider.toLowerCase().contains(keyword) &&
-!s.benefits.toLowerCase().contains(keyword) &&
-!s.qualificationsSummary.toLowerCase().contains(keyword)) {
-continue;
-}
-if (onlyBestMatches && currentUser != null) {
-if (!isEligibleForStudent(s, currentUser)) {
-continue;
-}
-}
-displayList.add(s);
-}
-if (onlyBestMatches) {
-viewTitleLabel.setText("Recommended Scholarships For You (" + displayList.size() + " Matches)");
-} else {
-viewTitleLabel.setText("Complete Philippine College Scholarship Directory (" + displayList.size() + " Total)");
-}
-if (displayList.isEmpty()) {
-    JLabel emptyMsg = new JLabel("No scholarships matched your current filters. Click 'All Scholarships' at the top.");
-    emptyMsg.setFont(new Font("SansSerif", Font.BOLD, 15));
-    emptyMsg.setForeground(COL_BROWN);
-    scholarshipListPanel.add(emptyMsg);
-} else {
-    for (Scholarship s : displayList) {
-        scholarshipListPanel.add(createScholarshipCard(s));
+
+
+	private void loadCurrentUserIntoProfileForm() {
+			if (currentUser == null) return;
+			profNameField.setText(currentUser.fullName);
+			profGwaField.setText(String.valueOf(currentUser.gwa));
+			profIncomeField.setText(String.valueOf((long) currentUser.annualFamilyIncome));
+			profFieldBox.setSelectedItem(currentUser.preferredField);
+			profGenderBox.setSelectedItem(currentUser.gender);
+			profOfwCheck.setSelected(currentUser.isOfwDependent);
+			profPublicHsCheck.setSelected(currentUser.isPublicHsGrad);
+			profAgriCheck.setSelected(currentUser.isFarmerFisherChild);
+			profIndigentCheck.setSelected(currentUser.isLowIncomeListahanan);
+	}
+
+	private JButton createStyledButton(String text, Color bg, Color fg) {
+			JButton btn = new JButton(text);
+			btn.setBackground(bg);
+			btn.setForeground(fg);
+			btn.setFont(new Font("SansSerif", Font.BOLD, 13));
+			btn.setFocusPainted(false);
+			btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+			return btn;
+	}
+	
+    private void promptAndExportCalendar(Scholarship s) {
+        String inputDate = JOptionPane.showInputDialog(
+                this,
+                "Enter application deadline date (YYYY-MM-DD)\nfor " + s.name + ":",
+                "2027-03-31"
+        );
+
+        if (inputDate == null || inputDate.trim().isEmpty()) {
+            return;
+        }
+
+        try {
+            java.time.LocalDate deadlineDate = java.time.LocalDate.parse(inputDate.trim());
+            exportCalendarReminder(s, deadlineDate);
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this,
+                    "Invalid date format. Please use YYYY-MM-DD (for example: 2027-03-31).",
+                    "Invalid Date",
+                    JOptionPane.ERROR_MESSAGE);
+        }
     }
-}
-scholarshipListPanel.revalidate();
-scholarshipListPanel.repaint();
-}
-private boolean isEligibleForStudent(Scholarship s, Student st) {
-if (st.gwa < s.minGwa) return false;
-if (s.maxIncome > 0 && st.annualFamilyIncome > s.maxIncome) return false;
-if (s.femaleOnly && !"Female".equalsIgnoreCase(st.gender)) return false;
-if (s.ofwOnly && !st.isOfwDependent) return false;
-if (s.agriChildOnly && !st.isFarmerFisherChild) return false;
-if (s.publicHsPreferred && !st.isPublicHsGrad) return false;
-if (!"Any".equalsIgnoreCase(s.requiredField) && !"Any".equalsIgnoreCase(st.preferredField)) {
-if (!s.requiredField.toLowerCase().contains(st.preferredField.toLowerCase()) &&
-!st.preferredField.toLowerCase().contains(s.requiredField.toLowerCase())) {
-return false;
-}
-}
-return true;
-}
-private JPanel createScholarshipCard(Scholarship s) {
-JPanel card = new JPanel(new BorderLayout(10, 8));
-card.setBackground(COL_CREAM);
-card.setPreferredSize(new Dimension(920, 165));
-card.setMinimumSize(new Dimension(600, 165));
-card.setBorder(new CompoundBorder(
-new LineBorder(COL_BROWN, 1, true),
-new EmptyBorder(14, 18, 14, 18)
-));
-JPanel topRow = new JPanel(new BorderLayout());
-topRow.setOpaque(false);
-JLabel nameLbl = new JLabel(s.name);
-nameLbl.setFont(new Font("SansSerif", Font.BOLD, 17));
-nameLbl.setForeground(COL_NAVY);
-JLabel badgeLbl = new JLabel("  " + s.category.toUpperCase() + "  ");
-badgeLbl.setOpaque(true);
-badgeLbl.setFont(new Font("SansSerif", Font.BOLD, 11));
-if ("Government".equals(s.category)) {
-badgeLbl.setBackground(COL_NAVY);
-badgeLbl.setForeground(COL_YELLOW);
-} else if ("Foundation".equals(s.category)) {
-badgeLbl.setBackground(COL_SKY_BLUE);
-badgeLbl.setForeground(COL_NAVY);
-} else {
-badgeLbl.setBackground(COL_YELLOW);
-badgeLbl.setForeground(COL_NAVY);
-}
-topRow.add(nameLbl, BorderLayout.WEST);
-topRow.add(badgeLbl, BorderLayout.EAST);
-JPanel centerInfo = new JPanel(new GridLayout(3, 1, 2, 4));
-centerInfo.setOpaque(false);
-JLabel providerLbl = new JLabel("Provider: " + s.provider);
-providerLbl.setFont(new Font("SansSerif", Font.BOLD, 13));
-providerLbl.setForeground(COL_BROWN);
-JLabel benefitsLbl = new JLabel("Benefits: " + s.benefits);
-benefitsLbl.setFont(new Font("SansSerif", Font.PLAIN, 13));
-benefitsLbl.setForeground(Color.DARK_GRAY);
-JLabel qualLbl = new JLabel("Qualifications: " + s.qualificationsSummary);
-qualLbl.setFont(new Font("SansSerif", Font.PLAIN, 13));
-qualLbl.setForeground(Color.DARK_GRAY);
-centerInfo.add(providerLbl);
-centerInfo.add(benefitsLbl);
-centerInfo.add(qualLbl);
-JPanel bottomRow = new JPanel(new BorderLayout());
-bottomRow.setOpaque(false);
-JLabel contactLbl = new JLabel("Contact: " + s.contactInfo);
-contactLbl.setFont(new Font("SansSerif", Font.ITALIC, 12));
-contactLbl.setForeground(COL_NAVY);
-JButton detailsBtn = createStyledButton("View Application Checklist", COL_SKY_BLUE, COL_NAVY);
-detailsBtn.addActionListener(e -> JOptionPane.showMessageDialog(
-this,
-"Scholarship: " + s.name + "\n" +
-"Provider: " + s.provider + "\n\n" +
-"Benefits:\n" + s.benefits + "\n\n" +
-"Requirements:\n" + s.qualificationsSummary + "\n\n" +
-"How to Apply / Contact:\n" + s.contactInfo,
-"Scholarship Details",
-JOptionPane.INFORMATION_MESSAGE
-));
-bottomRow.add(contactLbl, BorderLayout.WEST);
-bottomRow.add(detailsBtn, BorderLayout.EAST);
-card.add(topRow, BorderLayout.NORTH);
-card.add(centerInfo, BorderLayout.CENTER);
-card.add(bottomRow, BorderLayout.SOUTH);
-return card;
-}
-// =========================================================================
-// 6. STUDENT PROFILE EDIT SCREEN
-// =========================================================================
-private JPanel buildProfileScreen() {
-JPanel wrapper = new JPanel(new GridBagLayout());
-wrapper.setBackground(COL_OFF_WHITE);
-JPanel formCard = new JPanel(new GridLayout(11, 2, 10, 10));
-formCard.setBackground(COL_CREAM);
-formCard.setPreferredSize(new Dimension(560, 480));
-formCard.setBorder(new CompoundBorder(
-new LineBorder(COL_NAVY, 2, true),
-new EmptyBorder(25, 30, 25, 30)
-));
-profNameField = new JTextField();
-profGwaField = new JTextField();
-profIncomeField = new JTextField();
-profFieldBox = new JComboBox<>(new String[]{"Any", "STEM", "Business/IT/Eng/Educ", "Arts/Sports/Humanities"});
-profGenderBox = new JComboBox<>(new String[]{"Female", "Male", "Prefer not to say"});
-profOfwCheck = new JCheckBox("OFW Dependent (OWWA)");
-profPublicHsCheck = new JCheckBox("Public High School Grad");
-profAgriCheck = new JCheckBox("Farmer/Fisherfolk Child");
-profIndigentCheck = new JCheckBox("4Ps / Listahanan");
-profOfwCheck.setOpaque(false); profPublicHsCheck.setOpaque(false);
-profAgriCheck.setOpaque(false); profIndigentCheck.setOpaque(false);
-formCard.add(new JLabel("Full Name:")); formCard.add(profNameField);
-formCard.add(new JLabel("General Weighted Average (GWA %):")); formCard.add(profGwaField);
-formCard.add(new JLabel("Annual Family Gross Income (₱):")); formCard.add(profIncomeField);
-formCard.add(new JLabel("Preferred Course Field:")); formCard.add(profFieldBox);
-formCard.add(new JLabel("Gender:")); formCard.add(profGenderBox);
-formCard.add(profOfwCheck); formCard.add(profPublicHsCheck);
-formCard.add(profAgriCheck); formCard.add(profIndigentCheck);
-JButton saveBtn = createStyledButton("Save & Re-Match Scholarships", COL_NAVY, COL_YELLOW);
-saveBtn.addActionListener(e -> {
-try {
-currentUser.fullName = profNameField.getText().trim();
-currentUser.gwa = Double.parseDouble(profGwaField.getText().trim());
-currentUser.annualFamilyIncome = Double.parseDouble(profIncomeField.getText().trim());
-currentUser.preferredField = (String) profFieldBox.getSelectedItem();
-currentUser.gender = (String) profGenderBox.getSelectedItem();
-currentUser.isOfwDependent = profOfwCheck.isSelected();
-currentUser.isPublicHsGrad = profPublicHsCheck.isSelected();
-currentUser.isFarmerFisherChild = profAgriCheck.isSelected();
-currentUser.isLowIncomeListahanan = profIndigentCheck.isSelected();
-enterApp();
-JOptionPane.showMessageDialog(this, "Profile updated! Showing your new best matches.");
-} catch (NumberFormatException ex) {
-JOptionPane.showMessageDialog(this, "Please enter valid numeric values for GWA and Income.");
-}
-});
-formCard.add(new JLabel(""));
-formCard.add(saveBtn);
-wrapper.add(formCard);
-return wrapper;
-}
-private void loadCurrentUserIntoProfileForm() {
-if (currentUser == null) return;
-profNameField.setText(currentUser.fullName);
-profGwaField.setText(String.valueOf(currentUser.gwa));
-profIncomeField.setText(String.valueOf((long) currentUser.annualFamilyIncome));
-profFieldBox.setSelectedItem(currentUser.preferredField);
-profGenderBox.setSelectedItem(currentUser.gender);
-profOfwCheck.setSelected(currentUser.isOfwDependent);
-profPublicHsCheck.setSelected(currentUser.isPublicHsGrad);
-profAgriCheck.setSelected(currentUser.isFarmerFisherChild);
-profIndigentCheck.setSelected(currentUser.isLowIncomeListahanan);
-}
-private JButton createStyledButton(String text, Color bg, Color fg) {
-JButton btn = new JButton(text);
-btn.setBackground(bg);
-btn.setForeground(fg);
-btn.setFont(new Font("SansSerif", Font.BOLD, 13));
-btn.setFocusPainted(false);
-btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
-return btn;
-}
-public static void main(String[] args) {
-SwingUtilities.invokeLater(() -> {
-new ScholarshipFinderApp().setVisible(true);
-});
-}
+
+    private void exportCalendarReminder(Scholarship s, java.time.LocalDate deadlineDate) {
+        try {
+            String dateStr = deadlineDate.toString().replace("-", "");
+            String nextDayStr = deadlineDate.plusDays(1).toString().replace("-", "");
+            String safeFileName = s.name.replaceAll("[^a-zA-Z0-9]", "_") + "_Reminder.ics";
+
+            java.io.File icsFile = new java.io.File(System.getProperty("java.io.tmpdir"), safeFileName);
+
+            String icsContent =
+                    "BEGIN:VCALENDAR\r\n" +
+                    "VERSION:2.0\r\n" +
+                    "PRODID:-//IskolarPH//Scholarship Reminder//EN\r\n" +
+                    "BEGIN:VEVENT\r\n" +
+                    "UID:" + System.currentTimeMillis() + "@iskolarph.local\r\n" +
+                    "DTSTAMP:" + dateStr + "T080000Z\r\n" +
+                    "DTSTART;VALUE=DATE:" + dateStr + "\r\n" +
+                    "DTEND;VALUE=DATE:" + nextDayStr + "\r\n" +
+                    "SUMMARY:Scholarship Deadline: " + s.name + "\r\n" +
+                    "DESCRIPTION:Provider: " + s.provider + "\\nBenefits: " + s.benefits + "\\nContact: " + s.contactInfo + "\r\n" +
+                    "BEGIN:VALARM\r\n" +
+                    "TRIGGER:-P3D\r\n" +
+                    "ACTION:DISPLAY\r\n" +
+                    "DESCRIPTION:3 Days Left to Apply for " + s.name + "!\r\n" +
+                    "END:VALARM\r\n" +
+                    "END:VEVENT\r\n" +
+                    "END:VCALENDAR\r\n";
+
+            try (java.io.FileWriter writer = new java.io.FileWriter(icsFile)) {
+                writer.write(icsContent);
+            }
+
+            if (currentUser != null) {
+                String entry = s.name + "  -->  Deadline: " + deadlineDate;
+                if (!currentUser.savedReminders.contains(entry)) {
+                    currentUser.savedReminders.add(entry);
+                }
+            }
+
+            if (java.awt.Desktop.isDesktopSupported()) {
+                java.awt.Desktop.getDesktop().open(icsFile);
+            }
+
+            JOptionPane.showMessageDialog(this,
+                    "Calendar reminder created for " + deadlineDate + "!\n" +
+                    "An alarm is set 3 days before the deadline.\n\n" +
+                    "Saved at: " + icsFile.getAbsolutePath(),
+                    "Calendar Reminder Ready",
+                    JOptionPane.INFORMATION_MESSAGE);
+
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Could not open calendar app: " + ex.getMessage());
+        }
+    }
+
+    private void toggleBookmark(Scholarship s) {
+        if (currentUser == null) return;
+
+        if (currentUser.bookmarkedScholarships.contains(s)) {
+            currentUser.bookmarkedScholarships.remove(s);
+            JOptionPane.showMessageDialog(this, "Removed '" + s.name + "' from Saved Bookmarks.");
+        } else {
+            currentUser.bookmarkedScholarships.add(s);
+            currentUser.undoBookmarkStack.push(s); // Push to Stack for Undo support
+            JOptionPane.showMessageDialog(this, "Saved '" + s.name + "' to your Bookmarks!");
+        }
+        refreshScholarshipCards(viewTitleLabel.getText().contains("Recommended"));
+    }
+
+    private void showBookmarksDialog() {
+        if (currentUser == null || currentUser.bookmarkedScholarships.isEmpty()) {
+            JOptionPane.showMessageDialog(this,
+                    "You have no bookmarked scholarships yet.\nClick 'Bookmark' on any scholarship card to save it here!",
+                    "Saved Bookmarks",
+                    JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+
+        StringBuilder sb = new StringBuilder("Your Bookmarked Scholarships:\n\n");
+        for (int i = 0; i < currentUser.bookmarkedScholarships.size(); i++) {
+            Scholarship s = currentUser.bookmarkedScholarships.get(i);
+            sb.append(i + 1).append(". ").append(s.name).append(" (").append(s.provider).append(")\n");
+        }
+
+        Object[] options = {"Close", "Undo Last Bookmark (Stack Pop)"};
+        int choice = JOptionPane.showOptionDialog(
+                this,
+                sb.toString(),
+                "Saved Bookmarks (" + currentUser.bookmarkedScholarships.size() + ")",
+                JOptionPane.DEFAULT_OPTION,
+                JOptionPane.INFORMATION_MESSAGE,
+                null,
+                options,
+                options[0]
+        );
+
+        // Pop from Stack if user clicks Undo
+        if (choice == 1 && !currentUser.undoBookmarkStack.isEmpty()) {
+            Scholarship lastAdded = currentUser.undoBookmarkStack.pop();
+            currentUser.bookmarkedScholarships.remove(lastAdded);
+            refreshScholarshipCards(viewTitleLabel.getText().contains("Recommended"));
+            JOptionPane.showMessageDialog(this, "Undid last bookmark: " + lastAdded.name);
+        }
+    }
+
+    private void openDocumentChecklistDialog(Scholarship s) {
+        if (currentUser == null) return;
+
+        String[] requiredDocs = {
+            "PSA Birth Certificate (Photocopy)",
+            "Form 138 / Senior High School Report Card (GWA Proof)",
+            "Certificate of Good Moral Character",
+            "Parent's ITR / Certificate of Indigency (Income Proof)",
+            "2x2 ID Picture & Accomplished Application Form"
+        };
+
+        // Retrieve or initialize boolean[] from HashMap
+        boolean[] status = currentUser.documentChecklists.getOrDefault(s.name, new boolean[requiredDocs.length]);
+
+        JPanel panel = new JPanel(new GridLayout(requiredDocs.length + 2, 1, 5, 5));
+        panel.setBackground(COL_CREAM);
+        panel.setBorder(new EmptyBorder(10, 10, 10, 10));
+
+        JLabel header = new JLabel("Track your requirements for: " + s.name);
+        header.setFont(new Font("SansSerif", Font.BOLD, 13));
+        header.setForeground(COL_NAVY);
+        panel.add(header);
+
+        JCheckBox[] boxes = new JCheckBox[requiredDocs.length];
+        for (int i = 0; i < requiredDocs.length; i++) {
+            boxes[i] = new JCheckBox(requiredDocs[i], status[i]);
+            boxes[i].setOpaque(false);
+            panel.add(boxes[i]);
+        }
+
+        int result = JOptionPane.showConfirmDialog(
+                this,
+                panel,
+                "Document Checklist",
+                JOptionPane.OK_CANCEL_OPTION,
+                JOptionPane.PLAIN_MESSAGE
+        );
+
+        if (result == JOptionPane.OK_OPTION) {
+            int completed = 0;
+            for (int i = 0; i < requiredDocs.length; i++) {
+                status[i] = boxes[i].isSelected();
+                if (status[i]) completed++;
+            }
+            currentUser.documentChecklists.put(s.name, status);
+
+            int percent = (completed * 100) / requiredDocs.length;
+            JOptionPane.showMessageDialog(this,
+                    "Checklist saved! Readiness: " + completed + "/" + requiredDocs.length + " (" + percent + "% ready)",
+                    "Progress Updated",
+                    JOptionPane.INFORMATION_MESSAGE);
+        }
+    }
+    private JButton createIconButton(String emoji, Color bg, Color fg, String tooltip) {
+        JButton btn = new JButton(emoji);
+        btn.setBackground(bg);
+        btn.setForeground(fg);
+        btn.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 13));
+        btn.setMargin(new Insets(2, 6, 2, 6));
+        btn.setToolTipText(tooltip);
+        btn.setFocusPainted(false);
+        btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        return btn;
+    }
+  
+	public static void main(String[] args) {
+			SwingUtilities.invokeLater(() -> {
+			new ScholarshipFinderApp().setVisible(true);
+			});
+	}
 }
