@@ -1,12 +1,12 @@
 
-package DATASTRUFINALS;
+package FinalsProject;
 
 import javax.swing.*;
 import javax.swing.border.*;
 import java.awt.*;
 import java.util.ArrayList;
 
-public class ScholarshipFinderApp extends JFrame {
+public class Group4 extends JFrame {
 	
     public static final Color COL_CREAM       = Color.decode("#F1ECCF");
     public static final Color COL_SKY_BLUE    = Color.decode("#8BA8CC");
@@ -45,7 +45,7 @@ public class ScholarshipFinderApp extends JFrame {
     private JComboBox<String> regFieldBox, regGenderBox;
     private JCheckBox chkOfw, chkPublic, chkAgri, chkIndigent;
 
-    public ScholarshipFinderApp() {
+    public Group4() {
         setTitle("IskoLARP - Scholarship Locator, Application, and Requirements Planner");
         setSize(1250, 720);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -1170,7 +1170,7 @@ public class ScholarshipFinderApp extends JFrame {
   
 	public static void main(String[] args) {
 			SwingUtilities.invokeLater(() -> {
-			new ScholarshipFinderApp().setVisible(true);
+			new Group4().setVisible(true);
 			});
 	}
 }
