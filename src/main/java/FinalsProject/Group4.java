@@ -6,6 +6,9 @@ import javax.swing.border.*;
 import java.awt.*;
 import java.util.ArrayList;
 
+// Group 4 :
+//De Leon, Dimailig, Estores, Fernandez, Lagrada, Linatoc, Pana, Santuele
+
 public class Group4 extends JFrame {
 	
     public static final Color COL_CREAM       = Color.decode("#F1ECCF");
