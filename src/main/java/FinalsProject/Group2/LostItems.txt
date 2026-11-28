@@ -1,0 +1,6 @@
+1	Umbrella	Academic Bldg.1	Morning	2026-11-25	false
+2	PhoneCase	Oval	Afternoon	2026-10-20	true	John Paul	2026-11-25
+3	Wallet	Academic Bldg.1	Evening	2026-11-10	false
+4	Id	Admin Bldg.	Afternoon	2026-11-25	false
+5	Watch	Oval	Morning	2026-11-25	false
+6	Toy	Academic Bldg.1	Afternoon	2026-11-25	false
